@@ -61,6 +61,12 @@ public class MainWindow {
 
 	@FXML
     public void initialize() {
+		//load any previously saved trips from data/trips.json
+		try {
+			tripManager.loadFromFile();
+		} catch (java.io.IOException e) {
+			System.err.println("Could not load saved trips: " + e.getMessage());
+		}
 		showHomePage();
 	}
 
@@ -102,6 +108,7 @@ public class MainWindow {
 			TripPage controller = loader.getController();
 			controller.setTrip(trip);
 			controller.setMainWindow(this);
+			controller.setTripManager(tripManager);
 			rootPane.setCenter(tripPage);
 		} catch (Exception e) {
 			showError("Failed to load trip page: " + e.getMessage());
@@ -115,6 +122,7 @@ public class MainWindow {
 			ActivityPage controller = loader.getController();
 			controller.setActivity(activity);
 			controller.setTripPage(tripPage);
+			controller.setTripManager(tripManager);
 			rootPane.setCenter(activityPage);
 		} catch (Exception e) {
 			showError("Failed to load activity page: " + e.getMessage());
@@ -185,9 +193,12 @@ public class MainWindow {
 		dialog.showAndWait().ifPresent(trip -> {
 			try {
 				tripManager.addTrip(trip);
+				tripManager.saveToFile();
 				tripObservableList.setAll(tripManager.getTrips());
 			} catch (TimeIntervalConflictException e) {
 				showError("Trip time conflict: " + e.getMessage());
+			} catch (java.io.IOException e) {
+				showError("Failed to save: " + e.getMessage());
 			}
 		});
 	}
@@ -197,6 +208,7 @@ public class MainWindow {
 		if (selected != null) {
 			try {
 				tripManager.deleteTripById(selected.getId());
+				tripManager.saveToFile();
 				tripObservableList.setAll(tripManager.getTrips());
 				activityObservableList.clear();
 				expenseObservableList.clear();
@@ -329,6 +341,11 @@ public class MainWindow {
 				selectedTrip.addExpense(expense);
 				expenseObservableList.setAll(selectedTrip.getExpenses());
 			}
+			try {
+				tripManager.saveToFile();
+			} catch (java.io.IOException e) {
+				showError("Failed to save: " + e.getMessage());
+			}
 		});
 	}
 
@@ -345,8 +362,11 @@ public class MainWindow {
 				selectedTrip.deleteExpenseById(selectedExpense.getId());
 				expenseObservableList.setAll(selectedTrip.getExpenses());
 			}
+			tripManager.saveToFile();
 		} catch (ExpenseNotFoundException e) {
 			showError("Failed to delete expense: " + e.getMessage());
+		} catch (java.io.IOException e) {
+			showError("Failed to save: " + e.getMessage());
 		}
 	}
 
