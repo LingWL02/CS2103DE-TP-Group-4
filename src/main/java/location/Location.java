@@ -15,21 +15,29 @@ public class Location extends BaseEntity {
 
     private String country;
 
-    private double latitude;
+    private Double latitude;
 
-    private double longitude;
+    private Double longitude;
+
+    private String imagePath;
 
     public Location(int id, String name) {
         super(id, name);
     }
 
-    public Location(int id, String name, String address, String city, String country, double latitude, double longitude) {
+    public Location(int id, String name, String address, String city, String country, Double latitude, Double longitude) {
+        this(id, name, address, city, country, latitude, longitude, null);
+    }
+
+    public Location(int id, String name, String address, String city, String country,
+                    Double latitude, Double longitude, String imagePath) {
         super(id, name);
         this.address = address;
         this.city = city;
         this.country = country;
         this.latitude = latitude;
         this.longitude = longitude;
+        this.imagePath = imagePath;
     }
 
     public String getAddress() {
@@ -56,24 +64,36 @@ public class Location extends BaseEntity {
         this.country = country;
     }
 
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     public double distanceTo(Location other) {
         Objects.requireNonNull(other, "other");
+        if (this.latitude == null || this.longitude == null
+                || other.latitude == null || other.longitude == null) {
+            throw new IllegalStateException("Both locations must have latitude and longitude for distance calculation");
+        }
         double earthRadiusKm = 6371.0;
         double dLat = Math.toRadians(other.latitude - this.latitude);
         double dLon = Math.toRadians(other.longitude - this.longitude);
@@ -99,7 +119,7 @@ public class Location extends BaseEntity {
 
         String primary = (getName() != null && !getName().isBlank()) ? getName() : "Location";
         String region = locationBits.length() > 0 ? " (" + locationBits + ")" : "";
-        String addressPart = (address != null && !address.isBlank()) ? " - " + address : "";
+        String addressPart = (address != null && !address.isBlank()) ? " | " + address : "";
         return primary + region + addressPart;
     }
 

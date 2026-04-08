@@ -19,9 +19,11 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import trip.Trip;
 
 import java.time.Duration;
@@ -36,7 +38,7 @@ import java.util.List;
 import java.util.Set;
 
 public class TripPage {
-    private static final double DAY_TIMELINE_WIDTH = 320.0;
+    private static final double MIN_DAY_TIMELINE_WIDTH = 220.0;
     private static final double BLOCK_HEIGHT = 30.0;
     private static final double LANE_GAP = 8.0;
     private static final double MIN_BLOCK_WIDTH = 16.0;
@@ -96,8 +98,13 @@ public class TripPage {
     private void initialize() {
         activityListView.setItems(activityObservableList);
         expenseListView.setItems(expenseObservableList);
-        activityListView.setPlaceholder(new Label("No activities yet. Add one to populate the itinerary."));
+        activityListView.setPlaceholder(new Label("No activities yet."));
         expenseListView.setPlaceholder(new Label("No expenses yet."));
+        timelineContainer.widthProperty().addListener((obs, oldWidth, newWidth) -> {
+            if (trip != null) {
+                refreshTimeline();
+            }
+        });
 
         activityListView.setCellFactory(list -> new ListCell<Activity>() {
             @Override
@@ -196,6 +203,7 @@ public class TripPage {
     }
 
     private VBox buildDayTimelineSection(LocalDate day, List<DaySegment> segments) {
+        double timelineWidth = getTimelineWidth();
         VBox dayBox = new VBox(7);
         dayBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dbeafe; -fx-border-radius: 10; "
                 + "-fx-background-radius: 10; -fx-padding: 10;");
@@ -208,32 +216,32 @@ public class TripPage {
                 + (overlapCount > 0 ? " | " + overlapCount + " overlap(s)" : " | no overlaps"));
         daySummary.setStyle("-fx-font-size: 11px; -fx-text-fill: #475569;");
 
-        Pane ruler = createHourRuler();
-        Pane timelinePane = createTimelinePane(segments);
+        Pane ruler = createHourRuler(timelineWidth);
+        Pane timelinePane = createTimelinePane(segments, timelineWidth);
 
         dayBox.getChildren().addAll(dayHeader, daySummary, ruler, timelinePane);
         return dayBox;
     }
 
-    private Pane createHourRuler() {
+    private Pane createHourRuler(double timelineWidth) {
         Pane ruler = new Pane();
-        ruler.setPrefWidth(DAY_TIMELINE_WIDTH);
+        ruler.setPrefWidth(timelineWidth);
         ruler.setMinHeight(18);
         ruler.setPrefHeight(18);
 
         for (int hour = 0; hour <= 24; hour += 4) {
             Label marker = new Label(String.format("%02d:00", hour));
             marker.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280;");
-            marker.setLayoutX(Math.max(0, minutesToPixels(hour * 60) - 14));
+            marker.setLayoutX(Math.max(0, minutesToPixels(hour * 60, timelineWidth) - 14));
             marker.setLayoutY(0);
             ruler.getChildren().add(marker);
         }
         return ruler;
     }
 
-    private Pane createTimelinePane(List<DaySegment> segments) {
+    private Pane createTimelinePane(List<DaySegment> segments, double timelineWidth) {
         Pane timelinePane = new Pane();
-        timelinePane.setPrefWidth(DAY_TIMELINE_WIDTH);
+        timelinePane.setPrefWidth(timelineWidth);
         timelinePane.setStyle("-fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc); -fx-border-color: #bfdbfe; "
                 + "-fx-border-radius: 8; -fx-background-radius: 8;");
 
@@ -242,7 +250,7 @@ public class TripPage {
         timelinePane.setMinHeight(timelineHeight);
         timelinePane.setPrefHeight(timelineHeight);
 
-        addHourGridLines(timelinePane);
+        addHourGridLines(timelinePane, timelineWidth);
 
         if (segments.isEmpty()) {
             Label emptyState = new Label("No activities planned");
@@ -259,9 +267,9 @@ public class TripPage {
             activityBlock.setPrefHeight(BLOCK_HEIGHT);
             activityBlock.setMinHeight(BLOCK_HEIGHT);
 
-            double x = minutesToPixels(segment.startMinute);
-            double width = Math.max(MIN_BLOCK_WIDTH, minutesToPixels(segment.endMinute - segment.startMinute));
-            double maxAllowedWidth = Math.max(4.0, DAY_TIMELINE_WIDTH - x - 1);
+            double x = minutesToPixels(segment.startMinute, timelineWidth);
+            double width = Math.max(MIN_BLOCK_WIDTH, minutesToPixels(segment.endMinute - segment.startMinute, timelineWidth));
+            double maxAllowedWidth = Math.max(4.0, timelineWidth - x - 1);
             width = Math.min(width, maxAllowedWidth);
             double y = 6 + segment.lane * (BLOCK_HEIGHT + LANE_GAP);
 
@@ -286,10 +294,10 @@ public class TripPage {
         return timelinePane;
     }
 
-    private void addHourGridLines(Pane timelinePane) {
+    private void addHourGridLines(Pane timelinePane, double timelineWidth) {
         for (int hour = 0; hour <= 24; hour++) {
             Region line = new Region();
-            line.setLayoutX(minutesToPixels(hour * 60));
+            line.setLayoutX(minutesToPixels(hour * 60, timelineWidth));
             line.setLayoutY(0);
             line.setPrefWidth(hour % 4 == 0 ? 1.2 : 0.6);
             line.prefHeightProperty().bind(timelinePane.heightProperty());
@@ -328,8 +336,16 @@ public class TripPage {
         return minutes + "m";
     }
 
-    private double minutesToPixels(int minutes) {
-        return (minutes / 1440.0) * DAY_TIMELINE_WIDTH;
+    private double minutesToPixels(int minutes, double timelineWidth) {
+        return (minutes / 1440.0) * timelineWidth;
+    }
+
+    private double getTimelineWidth() {
+        double available = timelineContainer.getWidth() - 32;
+        if (available <= 0) {
+            return MIN_DAY_TIMELINE_WIDTH;
+        }
+        return Math.max(MIN_DAY_TIMELINE_WIDTH, available);
     }
 
     private int assignLanes(List<DaySegment> segments) {
@@ -497,8 +513,37 @@ public class TripPage {
         TextField startTimeField = new TextField("00:00");
         TextField endTimeField = new TextField("23:59");
         ComboBox<location.Location> locationCombo = new ComboBox<>();
-        locationCombo.getItems().add(trip.getLocation());
-        locationCombo.getSelectionModel().selectFirst();
+        if (mainWindow != null) {
+            locationCombo.getItems().addAll(mainWindow.getAvailableLocations());
+        }
+        if (locationCombo.getItems().isEmpty() && trip.getLocation() != null) {
+            locationCombo.getItems().add(trip.getLocation());
+        }
+        locationCombo.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(location.Location location) {
+                return location == null ? "" : location.toString();
+            }
+
+            @Override
+            public location.Location fromString(String string) {
+                return null;
+            }
+        });
+        if (!locationCombo.getItems().isEmpty()) {
+            locationCombo.getSelectionModel().selectFirst();
+        }
+        Button newLocationButton = new Button("New...");
+        newLocationButton.setOnAction(e -> {
+            if (mainWindow != null) {
+                location.Location location = mainWindow.promptAddLocation();
+                if (location != null) {
+                    locationCombo.getItems().setAll(mainWindow.getAvailableLocations());
+                    locationCombo.getSelectionModel().select(location);
+                }
+            }
+        });
+        HBox locationRow = new HBox(8, locationCombo, newLocationButton);
 
         ComboBox<Activity.Type> activityTypeCombo = new ComboBox<>();
         activityTypeCombo.getItems().addAll(Activity.Type.values());
@@ -515,7 +560,7 @@ public class TripPage {
         grid.add(new Label("End Time (HH:mm):"), 0, 4);
         grid.add(endTimeField, 1, 4);
         grid.add(new Label("Location:"), 0, 5);
-        grid.add(locationCombo, 1, 5);
+        grid.add(locationRow, 1, 5);
 
         grid.add(new Label("Type:"), 0, 6);
         grid.add(activityTypeCombo, 1, 6);

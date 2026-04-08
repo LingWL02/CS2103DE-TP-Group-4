@@ -20,23 +20,32 @@
                 <Region HBox.hgrow="ALWAYS" />
                 <Button text="Back" fx:id="backButton" styleClass="ghost-button" />
             </HBox>
-            <Label text="Itinerary Timeline" styleClass="section-title" />
-            <ScrollPane fitToWidth="true" prefHeight="260">
-                <content>
-                    <VBox fx:id="timelineContainer" spacing="10" />
-                </content>
-            </ScrollPane>
-            <Label text="Activities" styleClass="section-title" />
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Filter by type:" styleClass="muted" />
-                    <ComboBox fx:id="activityTypeFilter" />
-            </HBox>
-            <ListView fx:id="activityListView" prefHeight="200" />
-            <Button text="Add Activity" fx:id="addActivityButton" />
-            <Label text="Expenses" styleClass="section-title" />
-            <ListView fx:id="expenseListView" prefHeight="200" />
-            <Button text="Add Expense" fx:id="addExpenseButton" />
-            <Label fx:id="totalCostLabel" styleClass="section-title" />
+            <Separator styleClass="section-separator" />
+            <VBox spacing="10" styleClass="card section-card">
+                <Label text="Itinerary Timeline" styleClass="section-title" />
+                <ScrollPane fitToWidth="true" prefHeight="260" styleClass="timeline-scroll">
+                    <content>
+                        <VBox fx:id="timelineContainer" spacing="10" />
+                    </content>
+                </ScrollPane>
+            </VBox>
+            <Separator styleClass="section-separator" />
+            <VBox spacing="10" styleClass="card section-card">
+                <Label text="Activities" styleClass="section-title" />
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Filter by type:" styleClass="muted" />
+                        <ComboBox fx:id="activityTypeFilter" />
+                </HBox>
+                <ListView fx:id="activityListView" prefHeight="200" />
+                <Button text="Add Activity" fx:id="addActivityButton" />
+            </VBox>
+            <Separator styleClass="section-separator" />
+            <VBox spacing="10" styleClass="card section-card">
+                <Label text="Expenses" styleClass="section-title" />
+                <ListView fx:id="expenseListView" prefHeight="200" />
+                <Button text="Add Expense" fx:id="addExpenseButton" />
+                <Label fx:id="totalCostLabel" styleClass="section-title" />
+            </VBox>
         </VBox>
     </center>
     <padding>

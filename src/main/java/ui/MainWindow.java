@@ -11,13 +11,16 @@ import javafx.stage.Stage;
 import javafx.scene.Scene;
 import javafx.util.StringConverter;
 import javafx.scene.control.DatePicker;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import location.LocationRepository;
 
 import java.io.IOException;
+import java.io.File;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,12 +38,7 @@ public class MainWindow {
 
 		@FXML
 		private BorderPane rootPane;
-	// Demo static locations
-	private final List<location.Location> locationList = Arrays.asList(
-		new location.Location(1, "Singapore", "1 Main St", "Singapore", "Singapore", 1.3521, 103.8198),
-		new location.Location(2, "Tokyo", "2 Chiyoda", "Tokyo", "Japan", 35.6895, 139.6917),
-		new location.Location(3, "London", "3 Westminster", "London", "UK", 51.5074, -0.1278)
-	);
+	private final LocationRepository locationRepository = new LocationRepository();
 	@FXML
 	private ListView<Trip> tripListView;
 	@FXML
@@ -51,6 +49,10 @@ public class MainWindow {
 	private Button addTripButton;
 	@FXML
 	private Button deleteTripButton;
+	@FXML
+	private Button addLocationButton;
+	@FXML
+	private Button helpButton;
 	@FXML
 	private Button addActivityButton;
 	@FXML
@@ -73,6 +75,7 @@ public class MainWindow {
 		} catch (java.io.IOException e) {
 			System.err.println("Could not load saved trips: " + e.getMessage());
 		}
+		locationRepository.initializeFromTrips(tripManager.getTrips());
 		showHomePage();
 	}
 
@@ -99,9 +102,11 @@ public class MainWindow {
 					String locationText = trip.getLocation() != null ? trip.getLocation().toString() : "No location";
 					Label meta = new Label(locationText + " | " + trip.getActivities().size() + " activities");
 					meta.getStyleClass().add("cell-meta");
+					meta.setWrapText(true);
 
 					VBox card = new VBox(3, title, subtitle, meta);
 					card.getStyleClass().add("friendly-cell");
+					card.setMaxWidth(Double.MAX_VALUE);
 					setText(null);
 					setGraphic(card);
 				}
@@ -109,6 +114,13 @@ public class MainWindow {
 		});
 		addTripButton.setVisible(true);
 		deleteTripButton.setVisible(true);
+		if (addLocationButton != null) {
+			addLocationButton.setVisible(true);
+			addLocationButton.setOnAction(e -> handleAddLocation());
+		}
+		if (helpButton != null) {
+			helpButton.setOnAction(e -> showUserGuide());
+		}
 		rootPane.setCenter(tripListView.getParent().getParent());
 		addTripButton.setOnAction(e -> handleAddTrip());
 		deleteTripButton.setOnAction(e -> handleDeleteTrip());
@@ -166,19 +178,30 @@ public class MainWindow {
 		TextField startTimeField = new TextField("09:00");
 		TextField endTimeField = new TextField("18:00");
 		ComboBox<location.Location> locationCombo = new ComboBox<>();
-		locationCombo.getItems().addAll(locationList);
-		locationCombo.setConverter(new StringConverter<location.Location>() {
-			@Override public String toString(location.Location l) { return l == null ? "" : l.getName(); }
-			@Override public location.Location fromString(String s) { return null; }
+		locationCombo.getItems().addAll(locationRepository.getLocations());
+		locationCombo.setConverter(createLocationConverter());
+		if (!locationCombo.getItems().isEmpty()) {
+			locationCombo.getSelectionModel().selectFirst();
+		}
+		Button newLocationButton = new Button("New...");
+		newLocationButton.setOnAction(e -> {
+			Window owner = dialog.getDialogPane().getScene() != null
+					? dialog.getDialogPane().getScene().getWindow()
+					: (rootPane.getScene() != null ? rootPane.getScene().getWindow() : null);
+			location.Location newLocation = openAddLocationDialog(owner);
+			if (newLocation != null) {
+				locationCombo.getItems().setAll(locationRepository.getLocations());
+				locationCombo.getSelectionModel().select(newLocation);
+			}
 		});
-		locationCombo.getSelectionModel().selectFirst();
+		HBox locationRow = new HBox(8, locationCombo, newLocationButton);
 
 		grid.add(new Label("Name:"), 0, 0); grid.add(nameField, 1, 0);
 		grid.add(new Label("Start Date:"), 0, 1); grid.add(startDatePicker, 1, 1);
 		grid.add(new Label("Start Time (HH:mm):"), 0, 2); grid.add(startTimeField, 1, 2);
 		grid.add(new Label("End Date:"), 0, 3); grid.add(endDatePicker, 1, 3);
 		grid.add(new Label("End Time (HH:mm):"), 0, 4); grid.add(endTimeField, 1, 4);
-		grid.add(new Label("Location:"), 0, 5); grid.add(locationCombo, 1, 5);
+		grid.add(new Label("Location:"), 0, 5); grid.add(locationRow, 1, 5);
 
 		dialog.getDialogPane().setContent(grid);
 		dialog.setResultConverter(dialogButton -> {
@@ -256,19 +279,30 @@ public class MainWindow {
 		TextField startTimeField = new TextField("10:00");
 		TextField endTimeField = new TextField("12:00");
 		ComboBox<location.Location> locationCombo = new ComboBox<>();
-		locationCombo.getItems().addAll(locationList);
-		locationCombo.setConverter(new StringConverter<location.Location>() {
-			@Override public String toString(location.Location l) { return l == null ? "" : l.getName(); }
-			@Override public location.Location fromString(String s) { return null; }
+		locationCombo.getItems().addAll(locationRepository.getLocations());
+		locationCombo.setConverter(createLocationConverter());
+		if (!locationCombo.getItems().isEmpty()) {
+			locationCombo.getSelectionModel().selectFirst();
+		}
+		Button newLocationButton = new Button("New...");
+		newLocationButton.setOnAction(e -> {
+			Window owner = dialog.getDialogPane().getScene() != null
+					? dialog.getDialogPane().getScene().getWindow()
+					: (rootPane.getScene() != null ? rootPane.getScene().getWindow() : null);
+			location.Location newLocation = openAddLocationDialog(owner);
+			if (newLocation != null) {
+				locationCombo.getItems().setAll(locationRepository.getLocations());
+				locationCombo.getSelectionModel().select(newLocation);
+			}
 		});
-		locationCombo.getSelectionModel().selectFirst();
+		HBox locationRow = new HBox(8, locationCombo, newLocationButton);
 
 		grid.add(new Label("Name:"), 0, 0); grid.add(nameField, 1, 0);
 		grid.add(new Label("Start Date:"), 0, 1); grid.add(startDatePicker, 1, 1);
 		grid.add(new Label("Start Time (HH:mm):"), 0, 2); grid.add(startTimeField, 1, 2);
 		grid.add(new Label("End Date:"), 0, 3); grid.add(endDatePicker, 1, 3);
 		grid.add(new Label("End Time (HH:mm):"), 0, 4); grid.add(endTimeField, 1, 4);
-		grid.add(new Label("Location:"), 0, 5); grid.add(locationCombo, 1, 5);
+		grid.add(new Label("Location:"), 0, 5); grid.add(locationRow, 1, 5);
 
 		dialog.getDialogPane().setContent(grid);
 		dialog.setResultConverter(dialogButton -> {
@@ -401,6 +435,153 @@ public class MainWindow {
 		alert.setHeaderText(null);
 		alert.setContentText(message);
 		alert.showAndWait();
+	}
+
+	private void handleAddLocation() {
+		Window owner = rootPane.getScene() != null ? rootPane.getScene().getWindow() : null;
+		location.Location location = openAddLocationDialog(owner);
+		if (location != null) {
+			Alert info = new Alert(Alert.AlertType.INFORMATION);
+			info.setTitle("Location Added");
+			info.setHeaderText(null);
+			info.setContentText("Added location: " + location);
+			info.showAndWait();
+		}
+	}
+
+	private location.Location openAddLocationDialog(Window owner) {
+		Dialog<location.Location> dialog = new Dialog<>();
+		dialog.setTitle("Add Location");
+		dialog.setHeaderText("Enter location details (only name is required)");
+		if (owner != null) {
+			dialog.initOwner(owner);
+		}
+
+		ButtonType addButtonType = new ButtonType("Add Location", ButtonBar.ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
+
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+
+		TextField nameField = new TextField();
+		TextField cityField = new TextField();
+		TextField countryField = new TextField();
+		TextField addressField = new TextField();
+		TextField latitudeField = new TextField();
+		TextField longitudeField = new TextField();
+		TextField imagePathField = new TextField();
+		imagePathField.setEditable(false);
+		Button uploadButton = new Button("Upload Image...");
+
+		uploadButton.setOnAction(e -> {
+			FileChooser chooser = new FileChooser();
+			chooser.setTitle("Choose Location Image");
+			chooser.getExtensionFilters().addAll(
+				new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.webp")
+			);
+			File file = chooser.showOpenDialog(dialog.getDialogPane().getScene().getWindow());
+			if (file != null) {
+				imagePathField.setText(file.getAbsolutePath());
+			}
+		});
+
+		grid.add(new Label("Name*"), 0, 0); grid.add(nameField, 1, 0);
+		grid.add(new Label("City"), 0, 1); grid.add(cityField, 1, 1);
+		grid.add(new Label("Country"), 0, 2); grid.add(countryField, 1, 2);
+		grid.add(new Label("Address"), 0, 3); grid.add(addressField, 1, 3);
+		grid.add(new Label("Latitude"), 0, 4); grid.add(latitudeField, 1, 4);
+		grid.add(new Label("Longitude"), 0, 5); grid.add(longitudeField, 1, 5);
+		grid.add(new Label("Image"), 0, 6); grid.add(new HBox(8, imagePathField, uploadButton), 1, 6);
+
+		dialog.getDialogPane().setContent(grid);
+		dialog.setResultConverter(dialogButton -> {
+			if (dialogButton != addButtonType) {
+				return null;
+			}
+
+			String name = nameField.getText() != null ? nameField.getText().trim() : "";
+			if (name.isBlank()) {
+				showError("Location name is required.");
+				return null;
+			}
+
+			Double latitude = parseOptionalDouble(latitudeField.getText());
+			Double longitude = parseOptionalDouble(longitudeField.getText());
+			if ((latitude == null) != (longitude == null)) {
+				showError("Latitude and longitude should either both be provided or both be blank.");
+				return null;
+			}
+
+			return locationRepository.addLocation(
+				name,
+				normalizeOptional(addressField.getText()),
+				normalizeOptional(cityField.getText()),
+				normalizeOptional(countryField.getText()),
+				latitude,
+				longitude,
+				normalizeOptional(imagePathField.getText())
+			);
+		});
+
+		return dialog.showAndWait().orElse(null);
+	}
+
+	private void showUserGuide() {
+		Alert guide = new Alert(Alert.AlertType.INFORMATION);
+		guide.setTitle("User Guide");
+		guide.setHeaderText("Quick Guide");
+		guide.setContentText(
+			"1. Add a trip with dates and location.\n"
+			+ "2. Double-click a trip to open itinerary details.\n"
+			+ "3. Add activities and expenses inside a trip.\n"
+			+ "4. Use the type filter to narrow activities.\n"
+			+ "5. Use Add Location to create reusable locations with optional image/details."
+		);
+		guide.showAndWait();
+	}
+
+	private StringConverter<location.Location> createLocationConverter() {
+		return new StringConverter<>() {
+			@Override
+			public String toString(location.Location location) {
+				return location == null ? "" : location.toString();
+			}
+
+			@Override
+			public location.Location fromString(String string) {
+				return null;
+			}
+		};
+	}
+
+	private Double parseOptionalDouble(String text) {
+		String value = normalizeOptional(text);
+		if (value == null) {
+			return null;
+		}
+		try {
+			return Double.parseDouble(value);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private String normalizeOptional(String value) {
+		if (value == null) {
+			return null;
+		}
+		String trimmed = value.trim();
+		return trimmed.isEmpty() ? null : trimmed;
+	}
+
+	public List<location.Location> getAvailableLocations() {
+		return locationRepository.getLocations();
+	}
+
+	public location.Location promptAddLocation() {
+		Window owner = rootPane.getScene() != null ? rootPane.getScene().getWindow() : null;
+		return openAddLocationDialog(owner);
 	}
 
 	private String formatDateTimeRange(LocalDateTime start, LocalDateTime end) {

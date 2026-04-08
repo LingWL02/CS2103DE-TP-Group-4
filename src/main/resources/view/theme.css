@@ -27,6 +27,22 @@
     -fx-text-fill: rgba(248, 250, 252, 0.85);
 }
 
+.help-button {
+    -fx-background-color: rgba(248, 250, 252, 0.15);
+    -fx-text-fill: #f8fafc;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-min-width: 34;
+    -fx-min-height: 34;
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-border-color: rgba(248, 250, 252, 0.6);
+}
+
+.help-button:hover {
+    -fx-background-color: rgba(248, 250, 252, 0.28);
+}
+
 .hero-tiles {
     -fx-padding: 8 0 0 0;
 }
@@ -95,6 +111,19 @@
     -fx-effect: dropshadow(gaussian, rgba(15, 23, 42, 0.08), 16, 0.2, 0, 4);
 }
 
+.section-card {
+    -fx-padding: 12;
+}
+
+.section-separator {
+    -fx-opacity: 1;
+}
+
+.section-separator .line {
+    -fx-border-color: #cbd5e1;
+    -fx-border-width: 1;
+}
+
 .section-title {
     -fx-font-size: 14;
     -fx-font-weight: bold;
@@ -132,7 +161,7 @@
 }
 
 .list-view {
-    -fx-background-color: transparent;
+    -fx-background-color: #ffffff;
     -fx-border-color: #e2e8f0;
     -fx-border-radius: 10;
     -fx-background-radius: 10;
@@ -149,6 +178,29 @@
     -fx-border-radius: 10;
     -fx-background-radius: 10;
     -fx-padding: 8 10;
+}
+
+.combo-box-base,
+.combo-box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #94a3b8;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-opacity: 1;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #0f172a;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #94a3b8;
+}
+
+.timeline-scroll {
+    -fx-background: #ffffff;
+    -fx-background-color: transparent;
 }
 
 .cell-title {

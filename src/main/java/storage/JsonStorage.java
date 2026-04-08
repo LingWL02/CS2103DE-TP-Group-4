@@ -107,6 +107,7 @@ public class JsonStorage {
                 // bypass these checks, so we manually call the constructors.
                 .registerTypeAdapter(Trip.class, new TripDeserializer())
                 .registerTypeAdapter(Activity.class, new ActivityDeserializer())
+                .registerTypeAdapter(Location.class, new LocationDeserializer())
 
                 // Tell Gson to skip any BufferedImage fields.
                 // Images are binary data and don't belong in a text-based JSON file.
@@ -306,6 +307,54 @@ public class JsonStorage {
             }
 
             return activity;
+        }
+    }
+
+    /**
+     * Custom deserializer for Location with optional fields and backwards compatibility.
+     */
+    private static class LocationDeserializer implements JsonDeserializer<Location> {
+        @Override
+        public Location deserialize(JsonElement json, Type typeOfT,
+                                    JsonDeserializationContext context) throws JsonParseException {
+            JsonObject obj = json.getAsJsonObject();
+
+            int id = obj.has("id") && !obj.get("id").isJsonNull() ? obj.get("id").getAsInt() : 0;
+            String name = getString(obj, "name", "Unnamed Location");
+            String address = getStringOrNull(obj, "address");
+            String city = getStringOrNull(obj, "city");
+            String country = getStringOrNull(obj, "country");
+            Double latitude = getDoubleOrNull(obj, "latitude");
+            Double longitude = getDoubleOrNull(obj, "longitude");
+            String imagePath = getStringOrNull(obj, "imagePath");
+
+            return new Location(id, name, address, city, country, latitude, longitude, imagePath);
+        }
+
+        private String getString(JsonObject obj, String key, String defaultValue) {
+            if (!obj.has(key) || obj.get(key).isJsonNull()) {
+                return defaultValue;
+            }
+            return obj.get(key).getAsString();
+        }
+
+        private String getStringOrNull(JsonObject obj, String key) {
+            if (!obj.has(key) || obj.get(key).isJsonNull()) {
+                return null;
+            }
+            String value = obj.get(key).getAsString();
+            return value.isBlank() ? null : value;
+        }
+
+        private Double getDoubleOrNull(JsonObject obj, String key) {
+            if (!obj.has(key) || obj.get(key).isJsonNull()) {
+                return null;
+            }
+            try {
+                return obj.get(key).getAsDouble();
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 }
