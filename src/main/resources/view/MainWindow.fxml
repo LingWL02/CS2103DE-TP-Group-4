@@ -2,21 +2,48 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" fx:controller="ui.MainWindow">
+<BorderPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" fx:controller="ui.MainWindow" styleClass="app-root">
+    <top>
+        <VBox spacing="10" styleClass="hero" BorderPane.alignment="CENTER">
+            <Label text="Voyage Planner" styleClass="hero-title" />
+            <Label text="Plan trips, track activities, and keep expenses grounded." styleClass="hero-subtitle" />
+            <FlowPane hgap="12" vgap="12" styleClass="hero-tiles" prefWrapLength="760">
+                <StackPane styleClass="image-tile tile-food">
+                    <Label text="Food" styleClass="tile-label" />
+                </StackPane>
+                <StackPane styleClass="image-tile tile-city">
+                    <Label text="City" styleClass="tile-label" />
+                </StackPane>
+                <StackPane styleClass="image-tile tile-nature">
+                    <Label text="Nature" styleClass="tile-label" />
+                </StackPane>
+                <StackPane styleClass="image-tile tile-market">
+                    <Label text="Market" styleClass="tile-label" />
+                </StackPane>
+                <StackPane styleClass="image-tile tile-culture">
+                    <Label text="Culture" styleClass="tile-label" />
+                </StackPane>
+            </FlowPane>
+        </VBox>
+    </top>
     <center>
-        <HBox spacing="10" alignment="CENTER" BorderPane.alignment="CENTER">
-            <VBox spacing="10" alignment="TOP_LEFT" prefWidth="250">
-                <Label text="Trips" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+        <HBox spacing="16" alignment="TOP_LEFT" BorderPane.alignment="CENTER">
+            <VBox spacing="12" alignment="TOP_LEFT" prefWidth="330" styleClass="card">
+                <Label text="Trips" styleClass="section-title" />
                 <ListView fx:id="tripListView" prefHeight="400" />
                 <HBox spacing="10">
                     <Button text="Add Trip" fx:id="addTripButton" />
                     <Button text="Delete Trip" fx:id="deleteTripButton" />
                 </HBox>
             </VBox>
-            <!-- Removed Activities and Expenses lists from home screen -->
+            <VBox spacing="12" alignment="TOP_LEFT" prefWidth="320" styleClass="card">
+                <Label text="Getting Started" styleClass="section-title" />
+                <Label text="Double-click a trip to open the itinerary timeline and budgets." wrapText="true" styleClass="muted" />
+                <Label text="Tip: Add a location to see it highlighted across your activities." wrapText="true" styleClass="muted" />
+            </VBox>
         </HBox>
     </center>
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20" />
+        <Insets top="22" right="22" bottom="22" left="22" />
     </padding>
 </BorderPane>

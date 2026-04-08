@@ -1,4 +1,5 @@
 package expense;
+import java.util.Locale;
 import java.util.Objects;
 
 import utilities.BaseEntity;
@@ -75,6 +76,8 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
 
     @Override
     public String toString() {
-        return getName() + " - " + getCost() + " " + getCurrency() + " (" + getType() + ")";
+        return "Expense #" + getId() + ": " + getName()
+                + " | " + String.format(Locale.US, "%.2f", getCost()) + " " + getCurrency()
+                + " | Type: " + getType();
     }
 }

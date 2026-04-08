@@ -1,5 +1,6 @@
 package location;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 import utilities.BaseEntity;
 
@@ -84,6 +85,22 @@ public class Location extends BaseEntity {
                 * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return earthRadiusKm * c;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner locationBits = new StringJoiner(", ");
+        if (city != null && !city.isBlank()) {
+            locationBits.add(city);
+        }
+        if (country != null && !country.isBlank()) {
+            locationBits.add(country);
+        }
+
+        String primary = (getName() != null && !getName().isBlank()) ? getName() : "Location";
+        String region = locationBits.length() > 0 ? " (" + locationBits + ")" : "";
+        String addressPart = (address != null && !address.isBlank()) ? " - " + address : "";
+        return primary + region + addressPart;
     }
 
 }

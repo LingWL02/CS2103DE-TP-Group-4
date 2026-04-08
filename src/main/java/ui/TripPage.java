@@ -2,6 +2,7 @@ package ui;
 
 import activity.Activity;
 import expense.Expense;
+import filter.ActivityFilter;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -34,15 +35,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import filter.ActivityFilter;
-
 public class TripPage {
-    private static final double DAY_TIMELINE_WIDTH = 240.0;
-    private static final double BLOCK_HEIGHT = 28.0;
+    private static final double DAY_TIMELINE_WIDTH = 320.0;
+    private static final double BLOCK_HEIGHT = 30.0;
     private static final double LANE_GAP = 8.0;
     private static final double MIN_BLOCK_WIDTH = 16.0;
     private static final DateTimeFormatter DAY_HEADER_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     @FXML
     private Label tripNameLabel;
@@ -76,7 +76,7 @@ public class TripPage {
     public void setTrip(Trip trip) {
         this.trip = trip;
         tripNameLabel.setText(trip.getName());
-        tripDateLabel.setText(trip.getStartDateTime() + " - " + trip.getEndDateTime());
+        tripDateLabel.setText(formatDateTimeRange(trip.getStartDateTime(), trip.getEndDateTime()));
         tripLocationLabel.setText(trip.getLocation() != null ? trip.getLocation().toString() : "");
         activityObservableList.setAll(trip.getActivities());
         expenseObservableList.setAll(trip.getExpenses());
@@ -96,6 +96,8 @@ public class TripPage {
     private void initialize() {
         activityListView.setItems(activityObservableList);
         expenseListView.setItems(expenseObservableList);
+        activityListView.setPlaceholder(new Label("No activities yet. Add one to populate the itinerary."));
+        expenseListView.setPlaceholder(new Label("No expenses yet."));
 
         activityListView.setCellFactory(list -> new ListCell<Activity>() {
             @Override
@@ -103,9 +105,23 @@ public class TripPage {
                 super.updateItem(activity, empty);
                 if (empty || activity == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-                    setText(activity.getName() + " (" + (activity.getLocation() != null ? activity.getLocation().getName() : "No Location") + ") "
-                            + activity.getStartDateTime().toLocalDate() + " - " + activity.getEndDateTime().toLocalDate());
+                    Label title = new Label(activity.getName());
+                    title.getStyleClass().add("cell-title");
+
+                    Label subtitle = new Label(formatDateTimeRange(activity.getStartDateTime(), activity.getEndDateTime()));
+                    subtitle.getStyleClass().add("cell-subtitle");
+
+                    String typeText = activity.getTypes().isEmpty() ? "Type: N/A" : "Type: " + activity.getTypes().get(0);
+                    String locationText = activity.getLocation() != null ? activity.getLocation().toString() : "No location";
+                    Label meta = new Label(locationText + " | " + typeText);
+                    meta.getStyleClass().add("cell-meta");
+
+                    VBox card = new VBox(3, title, subtitle, meta);
+                    card.getStyleClass().add("friendly-cell");
+                    setText(null);
+                    setGraphic(card);
                 }
             }
         });
@@ -116,8 +132,21 @@ public class TripPage {
                 super.updateItem(expense, empty);
                 if (empty || expense == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-                    setText(expense.getName() + " - " + expense.getCost() + " " + expense.getCurrency() + " (" + expense.getType() + ")");
+                    Label title = new Label(expense.getName());
+                    title.getStyleClass().add("cell-title");
+
+                    Label subtitle = new Label(String.format("%.2f %s", expense.getCost(), expense.getCurrency()));
+                    subtitle.getStyleClass().add("cell-subtitle");
+
+                    Label meta = new Label("Type: " + expense.getType());
+                    meta.getStyleClass().add("cell-meta");
+
+                    VBox card = new VBox(3, title, subtitle, meta);
+                    card.getStyleClass().add("friendly-cell");
+                    setText(null);
+                    setGraphic(card);
                 }
             }
         });
@@ -128,7 +157,6 @@ public class TripPage {
             }
         });
 
-        //Populate and wire activity type filter
         activityTypeFilter.getItems().add("ALL");
         for (Activity.Type type : Activity.Type.values()) {
             activityTypeFilter.getItems().add(type.name());
@@ -168,17 +196,22 @@ public class TripPage {
     }
 
     private VBox buildDayTimelineSection(LocalDate day, List<DaySegment> segments) {
-        VBox dayBox = new VBox(6);
-        dayBox.setStyle("-fx-background-color: #fafafa; -fx-border-color: #d1d5db; -fx-border-radius: 6; "
-                + "-fx-background-radius: 6; -fx-padding: 8;");
+        VBox dayBox = new VBox(7);
+        dayBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dbeafe; -fx-border-radius: 10; "
+                + "-fx-background-radius: 10; -fx-padding: 10;");
 
         Label dayHeader = new Label(day.format(DAY_HEADER_FORMAT));
-        dayHeader.setStyle("-fx-font-weight: bold; -fx-text-fill: #111827;");
+        dayHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #0f172a;");
+
+        long overlapCount = segments.stream().filter(segment -> segment.overlaps).count();
+        Label daySummary = new Label(segments.size() + " activities"
+                + (overlapCount > 0 ? " | " + overlapCount + " overlap(s)" : " | no overlaps"));
+        daySummary.setStyle("-fx-font-size: 11px; -fx-text-fill: #475569;");
 
         Pane ruler = createHourRuler();
         Pane timelinePane = createTimelinePane(segments);
 
-        dayBox.getChildren().addAll(dayHeader, ruler, timelinePane);
+        dayBox.getChildren().addAll(dayHeader, daySummary, ruler, timelinePane);
         return dayBox;
     }
 
@@ -188,7 +221,7 @@ public class TripPage {
         ruler.setMinHeight(18);
         ruler.setPrefHeight(18);
 
-        for (int hour = 0; hour <= 24; hour += 6) {
+        for (int hour = 0; hour <= 24; hour += 4) {
             Label marker = new Label(String.format("%02d:00", hour));
             marker.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280;");
             marker.setLayoutX(Math.max(0, minutesToPixels(hour * 60) - 14));
@@ -201,8 +234,8 @@ public class TripPage {
     private Pane createTimelinePane(List<DaySegment> segments) {
         Pane timelinePane = new Pane();
         timelinePane.setPrefWidth(DAY_TIMELINE_WIDTH);
-        timelinePane.setStyle("-fx-background-color: #ffffff; -fx-border-color: #d1d5db; "
-                + "-fx-border-radius: 4; -fx-background-radius: 4;");
+        timelinePane.setStyle("-fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc); -fx-border-color: #bfdbfe; "
+                + "-fx-border-radius: 8; -fx-background-radius: 8;");
 
         int laneCount = assignLanes(segments);
         double timelineHeight = Math.max(44.0, 8.0 + laneCount * (BLOCK_HEIGHT + LANE_GAP));
@@ -237,16 +270,17 @@ public class TripPage {
             activityBlock.setPrefWidth(width);
 
             if (segment.overlaps) {
-                activityBlock.setStyle("-fx-background-color: #fee2e2; -fx-border-color: #ef4444; -fx-border-radius: 4; "
-                        + "-fx-background-radius: 4; -fx-padding: 4 8 4 8; -fx-text-fill: #7f1d1d;");
+                activityBlock.setStyle("-fx-background-color: #fee2e2; -fx-border-color: #ef4444; -fx-border-radius: 6; "
+                        + "-fx-background-radius: 6; -fx-padding: 5 8 5 8; -fx-text-fill: #7f1d1d; -fx-font-size: 11px;");
             } else {
-                activityBlock.setStyle("-fx-background-color: #dbeafe; -fx-border-color: #3b82f6; -fx-border-radius: 4; "
-                        + "-fx-background-radius: 4; -fx-padding: 4 8 4 8; -fx-text-fill: #1e3a8a;");
+                activityBlock.setStyle("-fx-background-color: #dbeafe; -fx-border-color: #3b82f6; -fx-border-radius: 6; "
+                        + "-fx-background-radius: 6; -fx-padding: 5 8 5 8; -fx-text-fill: #1e3a8a; -fx-font-size: 11px;");
             }
 
             String warning = segment.overlaps ? " (overlap detected)" : "";
             activityBlock.setTooltip(new Tooltip(segment.activity.getName() + ": "
-                    + createTimeRangeText(segment.startMinute, segment.endMinute) + warning));
+                    + createTimeRangeText(segment.startMinute, segment.endMinute)
+                    + " | duration " + formatDuration(segment.endMinute - segment.startMinute) + warning));
             timelinePane.getChildren().add(activityBlock);
         }
         return timelinePane;
@@ -257,19 +291,20 @@ public class TripPage {
             Region line = new Region();
             line.setLayoutX(minutesToPixels(hour * 60));
             line.setLayoutY(0);
-            line.setPrefWidth(hour % 6 == 0 ? 1.2 : 0.8);
+            line.setPrefWidth(hour % 4 == 0 ? 1.2 : 0.6);
             line.prefHeightProperty().bind(timelinePane.heightProperty());
-            if (hour % 6 == 0) {
-                line.setStyle("-fx-background-color: #d1d5db;");
+            if (hour % 4 == 0) {
+                line.setStyle("-fx-background-color: #bfdbfe;");
             } else {
-                line.setStyle("-fx-background-color: #f1f5f9;");
+                line.setStyle("-fx-background-color: #e2e8f0;");
             }
             timelinePane.getChildren().add(line);
         }
     }
 
     private String createBlockText(DaySegment segment) {
-        return segment.activity.getName() + " | " + createTimeRangeText(segment.startMinute, segment.endMinute);
+        String typeBadge = segment.activity.getTypes().isEmpty() ? "" : " [" + segment.activity.getTypes().get(0).name() + "]";
+        return segment.activity.getName() + typeBadge + " | " + createTimeRangeText(segment.startMinute, segment.endMinute);
     }
 
     private String createTimeRangeText(int startMinute, int endMinute) {
@@ -282,6 +317,15 @@ public class TripPage {
         }
         int normalized = Math.max(0, minuteOfDay);
         return LocalTime.MIN.plusMinutes(normalized).format(TIME_FORMAT);
+    }
+
+    private String formatDuration(int minuteCount) {
+        int hours = minuteCount / 60;
+        int minutes = minuteCount % 60;
+        if (hours > 0) {
+            return hours + "h " + minutes + "m";
+        }
+        return minutes + "m";
     }
 
     private double minutesToPixels(int minutes) {
@@ -344,6 +388,9 @@ public class TripPage {
     }
 
     private void applyActivityFilter() {
+        if (trip == null) {
+            return;
+        }
         String selected = activityTypeFilter.getSelectionModel().getSelectedItem();
         Activity.Type filterType = null;
         if (selected != null && !"ALL".equals(selected)) {
@@ -371,7 +418,6 @@ public class TripPage {
         }
         totalCostLabel.setText(sb.toString());
     }
-
 
     private void handleAddExpense() {
         Dialog<Expense> dialog = new Dialog<>();
@@ -496,7 +542,6 @@ public class TripPage {
                     LocalDateTime start = (startDate != null) ? LocalDateTime.of(startDate, startTime) : null;
                     LocalDateTime end = (endDate != null) ? LocalDateTime.of(endDate, endTime) : null;
                     location.Location loc = locationCombo.getValue();
-                   // return new Activity(activityObservableList.size() + 1, name, start, end, loc);
                     Activity newActivity = new Activity(activityObservableList.size() + 1, name, start, end, loc);
                     newActivity.addType(activityTypeCombo.getValue());
                     return newActivity;
@@ -510,7 +555,6 @@ public class TripPage {
         dialog.showAndWait().ifPresent(activity -> {
             try {
                 trip.addActivity(activity);
-              //  activityObservableList.setAll(trip.getActivities());
                 applyActivityFilter();
                 refreshTimeline();
                 refreshTotalCost();
@@ -527,6 +571,14 @@ public class TripPage {
         if (mainWindow != null && trip != null) {
             mainWindow.showTripPage(trip);
         }
+    }
+
+    private String formatDateTimeRange(LocalDateTime start, LocalDateTime end) {
+        return formatDateTime(start) + " -> " + formatDateTime(end);
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DATE_TIME_FORMAT) : "?";
     }
 
     private static class DaySegment {

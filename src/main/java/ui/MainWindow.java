@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import javafx.collections.FXCollections;
@@ -29,6 +31,8 @@ import exceptions.ExpenseNotFoundException;
 import exceptions.TimeIntervalConflictException;
 
 public class MainWindow {
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
 		@FXML
 		private BorderPane rootPane;
 	// Demo static locations
@@ -76,17 +80,30 @@ public class MainWindow {
 		// Set up the homepage (trip list) in the center pane
 		tripObservableList.setAll(tripManager.getTrips());
 		tripListView.setItems(tripObservableList);
-		// Remove activities and expenses lists from home screen
-		// Set custom cell factory for tripListView
+		tripListView.setPlaceholder(new Label("No trips yet. Click Add Trip to begin."));
+		// Render trips as card-like cells instead of plain table-like text.
 		tripListView.setCellFactory(list -> new ListCell<Trip>() {
 			@Override
 			protected void updateItem(Trip trip, boolean empty) {
 				super.updateItem(trip, empty);
 				if (empty || trip == null) {
 					setText(null);
+					setGraphic(null);
 				} else {
-					setText(trip.getName() + " (" + (trip.getLocation() != null ? trip.getLocation().getName() : "No Location") + ") " +
-							trip.getStartDateTime().toLocalDate() + " - " + trip.getEndDateTime().toLocalDate());
+					Label title = new Label(trip.getName());
+					title.getStyleClass().add("cell-title");
+
+					Label subtitle = new Label(formatDateTimeRange(trip.getStartDateTime(), trip.getEndDateTime()));
+					subtitle.getStyleClass().add("cell-subtitle");
+
+					String locationText = trip.getLocation() != null ? trip.getLocation().toString() : "No location";
+					Label meta = new Label(locationText + " | " + trip.getActivities().size() + " activities");
+					meta.getStyleClass().add("cell-meta");
+
+					VBox card = new VBox(3, title, subtitle, meta);
+					card.getStyleClass().add("friendly-cell");
+					setText(null);
+					setGraphic(card);
 				}
 			}
 		});
@@ -384,5 +401,13 @@ public class MainWindow {
 		alert.setHeaderText(null);
 		alert.setContentText(message);
 		alert.showAndWait();
+	}
+
+	private String formatDateTimeRange(LocalDateTime start, LocalDateTime end) {
+		return formatDateTime(start) + " -> " + formatDateTime(end);
+	}
+
+	private String formatDateTime(LocalDateTime dateTime) {
+		return dateTime != null ? dateTime.format(DATE_TIME_FORMAT) : "?";
 	}
 }

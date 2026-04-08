@@ -2,35 +2,44 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="ui.TripPage">
-    <top>
-        <Button text="Back" fx:id="backButton" />
-    </top>
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="ui.TripPage" styleClass="app-root">
     <center>
-        <VBox spacing="10" alignment="TOP_LEFT">
-            <Label fx:id="tripNameLabel" style="-fx-font-weight: bold; -fx-font-size: 18;" />
-            <Label fx:id="tripDateLabel" />
-            <Label fx:id="tripLocationLabel" />
-            <Label text="Itinerary Timeline" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+        <VBox spacing="14" alignment="TOP_LEFT">
+            <HBox spacing="16" alignment="CENTER_LEFT" styleClass="card">
+                <StackPane styleClass="image-tile tile-city small-tile">
+                    <Label text="City" styleClass="tile-label" />
+                </StackPane>
+                <StackPane styleClass="image-tile tile-market small-tile">
+                    <Label text="Market" styleClass="tile-label" />
+                </StackPane>
+                <VBox spacing="4">
+                    <Label fx:id="tripNameLabel" styleClass="page-title" />
+                    <Label fx:id="tripDateLabel" styleClass="muted" />
+                    <Label fx:id="tripLocationLabel" styleClass="muted" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <Button text="Back" fx:id="backButton" styleClass="ghost-button" />
+            </HBox>
+            <Label text="Itinerary Timeline" styleClass="section-title" />
             <ScrollPane fitToWidth="true" prefHeight="260">
                 <content>
                     <VBox fx:id="timelineContainer" spacing="10" />
                 </content>
             </ScrollPane>
-            <Label text="Activities" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+            <Label text="Activities" styleClass="section-title" />
             <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Filter by type:" />
+                    <Label text="Filter by type:" styleClass="muted" />
                     <ComboBox fx:id="activityTypeFilter" />
             </HBox>
             <ListView fx:id="activityListView" prefHeight="200" />
             <Button text="Add Activity" fx:id="addActivityButton" />
-            <Label text="Expenses" style="-fx-font-weight: bold; -fx-font-size: 14;" />
+            <Label text="Expenses" styleClass="section-title" />
             <ListView fx:id="expenseListView" prefHeight="200" />
             <Button text="Add Expense" fx:id="addExpenseButton" />
-            <Label fx:id="totalCostLabel" style="-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: #1e3a8a;" />
+            <Label fx:id="totalCostLabel" styleClass="section-title" />
         </VBox>
     </center>
     <padding>
-        <Insets top="20" right="20" bottom="20" left="20" />
+        <Insets top="22" right="22" bottom="22" left="22" />
     </padding>
 </BorderPane>

@@ -10,6 +10,7 @@ import utilities.BaseEntity;
 import utilities.Copyable;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +22,8 @@ import activity.Activity;
  * A trip that contains activities and expenses.
  */
 public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, Copyable<Trip> {
+
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     private final List<Activity> activities = new ArrayList<>();
 
@@ -250,8 +253,14 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
 
     @Override
     public String toString() {
-        return getName() + " (" + (getLocation() != null ? getLocation().getName() : "No Location") + ") " +
-                (getStartDateTime() != null ? getStartDateTime().toLocalDate() : "?") + " - " +
-                (getEndDateTime() != null ? getEndDateTime().toLocalDate() : "?");
+        return "Trip #" + getId() + ": " + getName()
+                + " | " + formatDateTime(getStartDateTime()) + " -> " + formatDateTime(getEndDateTime())
+                + " | Location: " + (getLocation() != null ? getLocation() : "No location")
+                + " | Activities: " + activities.size()
+                + " | Expenses: " + expenses.size();
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DATE_TIME_FORMAT) : "?";
     }
 }

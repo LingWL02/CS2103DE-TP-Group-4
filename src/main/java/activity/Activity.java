@@ -9,15 +9,19 @@ import utilities.BaseEntity;
 import utilities.Copyable;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 /**
  * A time-bounded activity within a trip.
  */
 public class Activity extends BaseEntity implements TimeInterval, ExpenseManagable, Copyable<Activity> {
+
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     public enum Type {
         SIGHTSEEING,
@@ -174,8 +178,18 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
 
     @Override
     public String toString() {
-        return getName() + " (" + (getLocation() != null ? getLocation().getName() : "No Location") + ") " +
-                (getStartDateTime() != null ? getStartDateTime().toLocalDate() : "?") + " - " +
-                (getEndDateTime() != null ? getEndDateTime().toLocalDate() : "?");
+        StringJoiner typeJoiner = new StringJoiner(", ");
+        for (Type type : types) {
+            typeJoiner.add(type.name());
+        }
+        String typesText = typeJoiner.length() == 0 ? "None" : typeJoiner.toString();
+        return "Activity #" + getId() + ": " + getName()
+                + " | " + formatDateTime(getStartDateTime()) + " -> " + formatDateTime(getEndDateTime())
+                + " | Location: " + (getLocation() != null ? getLocation() : "No location")
+                + " | Types: " + typesText;
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DATE_TIME_FORMAT) : "?";
     }
 }

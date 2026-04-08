@@ -14,12 +14,17 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import expense.Expense.Currency;
 import expense.Expense.Type;
 import javafx.scene.control.ListCell;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class ActivityPage {
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
     @FXML
     private Label activityNameLabel;
     @FXML
@@ -41,7 +46,7 @@ public class ActivityPage {
     public void setActivity(Activity activity) {
         this.activity = activity;
         activityNameLabel.setText(activity.getName());
-        activityDateLabel.setText(activity.getStartDateTime() + " - " + activity.getEndDateTime());
+        activityDateLabel.setText(formatDateTimeRange(activity.getStartDateTime(), activity.getEndDateTime()));
         activityLocationLabel.setText(activity.getLocation() != null ? activity.getLocation().toString() : "");
         expenseObservableList.setAll(activity.getExpenses());
     }
@@ -57,15 +62,28 @@ public class ActivityPage {
     @FXML
     private void initialize() {
         expenseListView.setItems(expenseObservableList);
-        // Set custom cell factory for expense list
+        expenseListView.setPlaceholder(new Label("No expenses added yet."));
         expenseListView.setCellFactory(list -> new ListCell<Expense>() {
             @Override
             protected void updateItem(Expense expense, boolean empty) {
                 super.updateItem(expense, empty);
                 if (empty || expense == null) {
                     setText(null);
+                    setGraphic(null);
                 } else {
-                    setText(expense.getName() + " - " + expense.getCost() + " " + expense.getCurrency() + " (" + expense.getType() + ")");
+                    Label title = new Label(expense.getName());
+                    title.getStyleClass().add("cell-title");
+
+                    Label subtitle = new Label(String.format("%.2f %s", expense.getCost(), expense.getCurrency()));
+                    subtitle.getStyleClass().add("cell-subtitle");
+
+                    Label meta = new Label("Type: " + expense.getType());
+                    meta.getStyleClass().add("cell-meta");
+
+                    VBox card = new VBox(3, title, subtitle, meta);
+                    card.getStyleClass().add("friendly-cell");
+                    setText(null);
+                    setGraphic(card);
                 }
             }
         });
@@ -129,5 +147,13 @@ public class ActivityPage {
                 // Optionally show error
             }
         });
+    }
+
+    private String formatDateTimeRange(LocalDateTime start, LocalDateTime end) {
+        return formatDateTime(start) + " -> " + formatDateTime(end);
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DATE_TIME_FORMAT) : "?";
     }
 }
