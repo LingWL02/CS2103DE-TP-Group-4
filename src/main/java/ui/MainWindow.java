@@ -151,9 +151,11 @@ public class MainWindow {
                 subtitle.getStyleClass().add("cell-subtitle");
 
                 String countryText = trip.getCountry() != null ? trip.getCountry().getName() : "No country";
-                Label countryMeta = new Label("Country: " + countryText);
+                Label countryMeta = new Label(countryText);
                 countryMeta.getStyleClass().add("cell-meta");
-                Label activityMeta = new Label("Activities: " + trip.getActivities().size());
+                int activityCount = trip.getActivities().size();
+                String activityText = activityCount + (activityCount == 1 ? " Activity" : " Activities");
+                Label activityMeta = new Label(activityText);
                 activityMeta.getStyleClass().add("cell-meta");
 
                 VBox textBox = new VBox(3, title, subtitle, countryMeta, activityMeta);

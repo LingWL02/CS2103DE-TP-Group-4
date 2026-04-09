@@ -159,13 +159,12 @@ public class TripPage {
                     Label title = new Label(activity.getName());
                     title.getStyleClass().add("cell-title");
 
-                    Label subtitle = new Label("When: "
-                            + formatDateTimeRange(activity.getStartDateTime(), activity.getEndDateTime()));
+                        Label subtitle = new Label(formatDateTimeRange(activity.getStartDateTime(), activity.getEndDateTime()));
                     subtitle.getStyleClass().add("cell-subtitle");
 
                     Label locationMeta = new Label(activity.getLocation() != null
-                            ? "Where: " + activity.getLocation().toString()
-                            : "Where: none");
+                            ? activity.getLocation().toString()
+                            : "No location");
                     locationMeta.getStyleClass().add("cell-meta");
 
                     Label typeChip = new Label(activity.getTypes().isEmpty()
@@ -225,7 +224,7 @@ public class TripPage {
                     String sourceActivityName = expenseSourceActivityById.get(expense.getId());
                     Label sourceMeta = null;
                     if (sourceActivityName != null && !sourceActivityName.isBlank()) {
-                        sourceMeta = new Label("Activity: " + sourceActivityName);
+                        sourceMeta = new Label(sourceActivityName);
                         sourceMeta.getStyleClass().add("cell-meta");
                     }
 
