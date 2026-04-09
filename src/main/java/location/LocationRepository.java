@@ -59,10 +59,7 @@ public class LocationRepository {
             }
             locationsById.put(location.getId(), location);
         }
-        if (locations.isEmpty()) {
-            seedDefaults();
-            save();
-        } else if (hasImagePathUpdates) {
+        if (hasImagePathUpdates) {
             save();
         }
     }
@@ -212,29 +209,6 @@ public class LocationRepository {
         Country fallback = countryRepository.findByName("Singapore");
         if (fallback != null) {
             location.setCountry(fallback);
-        }
-    }
-
-    private void seedDefaults() {
-        Country singapore = countryRepository.findByName("Singapore");
-        Country japan = countryRepository.findByName("Japan");
-        Country uk = countryRepository.findByName("United Kingdom");
-
-        if (singapore != null) {
-            locations.add(new Location(nextId++, "Marina Bay", "Marina Bay Sands", "Singapore", singapore,
-                    null, null, "/images/singapore.jpg"));
-        }
-        if (japan != null) {
-            locations.add(new Location(nextId++, "Shinjuku", "Kabukicho", "Tokyo", japan,
-                    null, null, "/images/japan.jpg"));
-        }
-        if (uk != null) {
-            locations.add(new Location(nextId++, "Westminster", "Parliament Square", "London", uk,
-                    null, null, "/images/china.jpg"));
-        }
-        for (Location location : locations) {
-            registerLocationIdentity(location);
-            locationsById.put(location.getId(), location);
         }
     }
 

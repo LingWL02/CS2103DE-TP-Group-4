@@ -54,10 +54,7 @@ public class CountryRepository {
             }
             countriesById.put(country.getId(), country);
         }
-        if (countries.isEmpty()) {
-            seedDefaults();
-            save();
-        } else if (hasImagePathUpdates) {
+        if (hasImagePathUpdates) {
             save();
         }
     }
@@ -165,16 +162,6 @@ public class CountryRepository {
         }
         if (!USED_COUNTRY_NAMES.add(nameKey)) {
             throw new IllegalStateException("Duplicate country name detected: " + country.getName());
-        }
-    }
-
-    private void seedDefaults() {
-        countries.add(new Country(nextId++, "Singapore", "Asia", "/images/singapore.jpg"));
-        countries.add(new Country(nextId++, "Japan", "Asia", "/images/japan.jpg"));
-        countries.add(new Country(nextId++, "United Kingdom", "Europe", "/images/china.jpg"));
-        for (Country country : countries) {
-            registerCountryIdentity(country);
-            countriesById.put(country.getId(), country);
         }
     }
 

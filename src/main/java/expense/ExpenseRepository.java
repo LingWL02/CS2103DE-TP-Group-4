@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -108,6 +109,30 @@ public class ExpenseRepository {
             expense.setImagePath(storedImagePath);
         }
         return expense;
+    }
+
+    public void deleteExpenseById(int expenseId) {
+        Expense expense = expensesById.remove(expenseId);
+        if (expense == null) {
+            throw new IllegalArgumentException("Expense not found: id=" + expenseId);
+        }
+        expenses.remove(expense);
+        USED_EXPENSE_IDS.remove(expenseId);
+    }
+
+    public void deleteExpenseByName(String name) {
+        String normalizedName = normalizeRequired(name, "expense name");
+        Expense target = null;
+        for (Expense expense : expenses) {
+            if (Objects.equals(expense.getName(), normalizedName)) {
+                target = expense;
+                break;
+            }
+        }
+        if (target == null) {
+            throw new IllegalArgumentException("Expense not found: name=" + normalizedName);
+        }
+        deleteExpenseById(target.getId());
     }
 
     public void registerExpense(Expense expense) {

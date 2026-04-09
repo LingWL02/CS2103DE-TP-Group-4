@@ -4,10 +4,12 @@ import activity.Activity;
 import expense.Expense;
 import expense.ExpenseRepository;
 import filter.ActivityFilter;
+import javafx.collections.ListChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -26,6 +28,7 @@ import javafx.stage.FileChooser;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
@@ -75,9 +78,13 @@ public class TripPage {
     @FXML
     private Button editActivityButton;
     @FXML
+    private Button editTripButton;
+    @FXML
     private Button addExpenseButton;
     @FXML
     private Button editExpenseButton;
+    @FXML
+    private Button deleteExpenseButton;
     @FXML
     private Button backButton;
     @FXML
@@ -254,9 +261,15 @@ public class TripPage {
         if (editActivityButton != null) {
             editActivityButton.setOnAction(e -> handleEditActivity());
         }
+        if (editTripButton != null) {
+            editTripButton.setOnAction(e -> handleEditTrip());
+        }
         addExpenseButton.setOnAction(e -> handleAddExpense());
         if (editExpenseButton != null) {
             editExpenseButton.setOnAction(e -> handleEditExpense());
+        }
+        if (deleteExpenseButton != null) {
+            deleteExpenseButton.setOnAction(e -> handleDeleteExpense());
         }
 
         activityListView.setOnMouseClicked(event -> {
@@ -288,34 +301,62 @@ public class TripPage {
 
     private VBox buildDayTimelineSection(LocalDate day, List<DaySegment> segments) {
         double timelineWidth = getTimelineWidth();
-        VBox dayBox = new VBox(7);
-        dayBox.setStyle("-fx-background-color: #ffffff; -fx-border-color: #dbeafe; -fx-border-radius: 10; "
-                + "-fx-background-radius: 10; -fx-padding: 10;");
+        VBox dayBox = new VBox(8);
+        dayBox.getStyleClass().add("timeline-day-card");
 
         Label dayHeader = new Label(day.format(DAY_HEADER_FORMAT));
-        dayHeader.setStyle("-fx-font-weight: bold; -fx-font-size: 12px; -fx-text-fill: #0f172a;");
+        dayHeader.getStyleClass().add("timeline-day-title");
 
         long overlapCount = segments.stream().filter(segment -> segment.overlaps).count();
-        Label daySummary = new Label(segments.size() + " activities"
-            + (overlapCount > 0 ? ", " + overlapCount + " overlap(s)" : ", no overlaps"));
-        daySummary.setStyle("-fx-font-size: 11px; -fx-text-fill: #475569;");
+
+        HBox headerRow = new HBox(8);
+        headerRow.setAlignment(Pos.CENTER_LEFT);
+        headerRow.getStyleClass().add("timeline-day-header");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        Label itemCountBadge = createTimelineBadge(segments.size() + " item(s)", "timeline-day-badge");
+        Label overlapBadge = overlapCount > 0
+                ? createTimelineBadge(overlapCount + " overlap(s)", "timeline-day-badge-overlap")
+                : createTimelineBadge("No overlaps", "timeline-day-badge-clear");
+
+        headerRow.getChildren().addAll(dayHeader, spacer, itemCountBadge, overlapBadge);
 
         Pane ruler = createHourRuler(timelineWidth);
         Pane timelinePane = createTimelinePane(segments, timelineWidth);
 
-        dayBox.getChildren().addAll(dayHeader, daySummary, ruler, timelinePane);
+        HBox legendRow = createTimelineLegendRow();
+
+        dayBox.getChildren().addAll(headerRow, legendRow, ruler, timelinePane);
         return dayBox;
+    }
+
+    private HBox createTimelineLegendRow() {
+        Label scheduledChip = createTimelineBadge("Scheduled", "timeline-legend-chip");
+        Label overlapChip = createTimelineBadge("Overlap", "timeline-legend-chip-overlap");
+        HBox legend = new HBox(6, scheduledChip, overlapChip);
+        legend.setAlignment(Pos.CENTER_LEFT);
+        legend.getStyleClass().add("timeline-legend-row");
+        return legend;
+    }
+
+    private Label createTimelineBadge(String text, String styleClass) {
+        Label badge = new Label(text);
+        badge.getStyleClass().add(styleClass);
+        return badge;
     }
 
     private Pane createHourRuler(double timelineWidth) {
         Pane ruler = new Pane();
+        ruler.getStyleClass().add("timeline-ruler");
         ruler.setPrefWidth(timelineWidth);
         ruler.setMinHeight(18);
         ruler.setPrefHeight(18);
 
         for (int hour = 0; hour <= 24; hour += 4) {
             Label marker = new Label(String.format("%02d:00", hour));
-            marker.setStyle("-fx-font-size: 10px; -fx-text-fill: #6b7280;");
+            marker.getStyleClass().add("timeline-ruler-marker");
             marker.setLayoutX(Math.max(0, minutesToPixels(hour * 60, timelineWidth) - 14));
             marker.setLayoutY(0);
             ruler.getChildren().add(marker);
@@ -325,9 +366,8 @@ public class TripPage {
 
     private Pane createTimelinePane(List<DaySegment> segments, double timelineWidth) {
         Pane timelinePane = new Pane();
+        timelinePane.getStyleClass().add("timeline-pane");
         timelinePane.setPrefWidth(timelineWidth);
-        timelinePane.setStyle("-fx-background-color: linear-gradient(to bottom, #ffffff, #f8fafc); -fx-border-color: #bfdbfe; "
-                + "-fx-border-radius: 8; -fx-background-radius: 8;");
 
         int laneCount = assignLanes(segments);
         double timelineHeight = Math.max(44.0, 8.0 + laneCount * (BLOCK_HEIGHT + LANE_GAP));
@@ -338,7 +378,7 @@ public class TripPage {
 
         if (segments.isEmpty()) {
             Label emptyState = new Label("No activities planned");
-            emptyState.setStyle("-fx-text-fill: #9ca3af; -fx-font-style: italic;");
+            emptyState.getStyleClass().add("timeline-empty-state");
             emptyState.setLayoutX(10);
             emptyState.setLayoutY(12);
             timelinePane.getChildren().add(emptyState);
@@ -360,13 +400,10 @@ public class TripPage {
             activityBlock.setLayoutX(x);
             activityBlock.setLayoutY(y);
             activityBlock.setPrefWidth(width);
+            activityBlock.getStyleClass().add("timeline-activity-block");
 
             if (segment.overlaps) {
-                activityBlock.setStyle("-fx-background-color: #fee2e2; -fx-border-color: #ef4444; -fx-border-radius: 6; "
-                        + "-fx-background-radius: 6; -fx-padding: 5 8 5 8; -fx-text-fill: #7f1d1d; -fx-font-size: 11px;");
-            } else {
-                activityBlock.setStyle("-fx-background-color: #dbeafe; -fx-border-color: #3b82f6; -fx-border-radius: 6; "
-                        + "-fx-background-radius: 6; -fx-padding: 5 8 5 8; -fx-text-fill: #1e3a8a; -fx-font-size: 11px;");
+                activityBlock.getStyleClass().add("timeline-activity-block-overlap");
             }
 
             String warning = segment.overlaps ? " (overlap detected)" : "";
@@ -387,9 +424,9 @@ public class TripPage {
             line.setPrefWidth(hour % 4 == 0 ? 1.2 : 0.6);
             line.prefHeightProperty().bind(timelinePane.heightProperty());
             if (hour % 4 == 0) {
-                line.setStyle("-fx-background-color: #bfdbfe;");
+                line.getStyleClass().add("timeline-grid-line-major");
             } else {
-                line.setStyle("-fx-background-color: #e2e8f0;");
+                line.getStyleClass().add("timeline-grid-line-minor");
             }
             timelinePane.getChildren().add(line);
         }
@@ -697,6 +734,74 @@ public class TripPage {
         });
     }
 
+    private void handleDeleteExpense() {
+        Expense selectedExpense = expenseListView.getSelectionModel().getSelectedItem();
+        if (selectedExpense == null) {
+            showError("Please select an expense to delete.");
+            return;
+        }
+
+        try {
+            boolean removed = removeExpenseFromTrip(selectedExpense.getId());
+            if (!removed) {
+                throw new IllegalArgumentException("Selected expense is no longer attached to this trip.");
+            }
+
+            if (tripManager != null) {
+                tripManager.saveToFile();
+            }
+            if (mainWindow != null) {
+                mainWindow.cleanupExpenseIfOrphaned(selectedExpense.getId());
+            }
+
+            refreshExpenseList();
+            refreshTotalCost();
+            if (mainWindow != null) {
+                mainWindow.refreshHeaderActivitySummary();
+            }
+        } catch (Exception e) {
+            showError("Failed to delete expense: " + e.getMessage());
+        }
+    }
+
+    private boolean removeExpenseFromTrip(int expenseId) {
+        for (Expense expense : trip.getExpenses()) {
+            if (expense.getId() == expenseId) {
+                try {
+                    trip.deleteExpenseById(expenseId);
+                    return true;
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+        }
+
+        for (Activity activity : trip.getActivities()) {
+            for (Expense expense : activity.getExpenses()) {
+                if (expense.getId() == expenseId) {
+                    try {
+                        activity.deleteExpenseById(expenseId);
+                        return true;
+                    } catch (Exception e) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void handleEditTrip() {
+        if (trip == null || mainWindow == null) {
+            return;
+        }
+        boolean updated = mainWindow.promptEditTrip(trip);
+        if (updated) {
+            setTrip(trip);
+        }
+    }
+
     private void handleAddActivity() {
         Dialog<Activity> dialog = new Dialog<>();
         dialog.setTitle("Add Activity");
@@ -757,7 +862,7 @@ public class TripPage {
         if (!locationCombo.getItems().isEmpty()) {
             locationCombo.getSelectionModel().selectFirst();
         }
-        Button newLocationButton = new Button("New...");
+        Button newLocationButton = createAddButton("New...");
         newLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 location.Location location = mainWindow.promptAddLocation();
@@ -767,7 +872,7 @@ public class TripPage {
                 }
             }
         });
-        Button editLocationButton = new Button("Edit...");
+        Button editLocationButton = createEditButton("Edit...");
         editLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 location.Location edited = mainWindow.promptEditLocation(locationCombo.getValue());
@@ -777,13 +882,14 @@ public class TripPage {
                 }
             }
         });
-        Button deleteLocationButton = new Button("Delete");
+        Button deleteLocationButton = createDeleteButton("Delete");
         deleteLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 mainWindow.deleteLocationFromUi(locationCombo.getValue(), refreshLocations);
             }
         });
-        HBox locationRow = new HBox(8, locationCombo, newLocationButton, editLocationButton, deleteLocationButton);
+        HBox locationRow = createResponsiveActionRow(locationCombo, newLocationButton, editLocationButton,
+                deleteLocationButton);
 
         ComboBox<Activity.Type> activityTypeCombo = new ComboBox<>();
         activityTypeCombo.getItems().addAll(Activity.Type.values());
@@ -922,7 +1028,7 @@ public class TripPage {
             locationCombo.getSelectionModel().select(selectedActivity.getLocation());
         }
 
-        Button newLocationButton = new Button("New...");
+        Button newLocationButton = createAddButton("New...");
         newLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 location.Location location = mainWindow.promptAddLocation();
@@ -932,7 +1038,7 @@ public class TripPage {
                 }
             }
         });
-        Button editLocationButton = new Button("Edit...");
+        Button editLocationButton = createEditButton("Edit...");
         editLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 location.Location edited = mainWindow.promptEditLocation(locationCombo.getValue());
@@ -942,7 +1048,7 @@ public class TripPage {
                 }
             }
         });
-        Button deleteLocationButton = new Button("Delete");
+        Button deleteLocationButton = createDeleteButton("Delete");
         deleteLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 mainWindow.deleteLocationFromUi(locationCombo.getValue(), refreshLocations);
@@ -965,7 +1071,8 @@ public class TripPage {
         grid.add(new Label("End Time (HH:mm):"), 0, 4);
         grid.add(endTimeField, 1, 4);
         grid.add(new Label("Location:"), 0, 5);
-        grid.add(new HBox(8, locationCombo, newLocationButton, editLocationButton, deleteLocationButton), 1, 5);
+        grid.add(createResponsiveActionRow(locationCombo, newLocationButton, editLocationButton,
+            deleteLocationButton), 1, 5);
         grid.add(new Label("Type:"), 0, 6);
         grid.add(typeCombo, 1, 6);
 
@@ -1019,6 +1126,44 @@ public class TripPage {
         File file = chooser.showOpenDialog(window);
         if (file != null) {
             targetField.setText(file.getAbsolutePath());
+        }
+    }
+
+    private Button createAddButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "add-button");
+        return button;
+    }
+
+    private Button createEditButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "edit-button");
+        return button;
+    }
+
+    private Button createDeleteButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "delete-button");
+        return button;
+    }
+
+    private HBox createResponsiveActionRow(ComboBox<?> combo, Button addButton, Button editButton, Button deleteButton) {
+        combo.setMaxWidth(Double.MAX_VALUE);
+        combo.setPrefWidth(240);
+        HBox.setHgrow(combo, Priority.ALWAYS);
+        lockButtonWidth(addButton);
+        lockButtonWidth(editButton);
+        lockButtonWidth(deleteButton);
+        return new HBox(8, combo, addButton, editButton, deleteButton);
+    }
+
+    private void lockButtonWidth(Button button) {
+        button.setMinWidth(84);
+    }
+
+    private void applyButtonStyleClass(Button button, String styleClass) {
+        if (!button.getStyleClass().contains(styleClass)) {
+            button.getStyleClass().add(styleClass);
         }
     }
 
@@ -1093,9 +1238,24 @@ public class TripPage {
         if (!dialog.getDialogPane().getStyleClass().contains("form-dialog")) {
             dialog.getDialogPane().getStyleClass().add("form-dialog");
         }
+        applyDialogActionStyles(dialog);
+        dialog.getDialogPane().getButtonTypes().addListener((ListChangeListener<ButtonType>) change ->
+                applyDialogActionStyles(dialog));
         Window owner = dialog.getDialogPane().getScene() != null ? dialog.getDialogPane().getScene().getWindow() : null;
         if (owner != null) {
             owner.sizeToScene();
+        }
+    }
+
+    private void applyDialogActionStyles(Dialog<?> dialog) {
+        for (ButtonType buttonType : dialog.getDialogPane().getButtonTypes()) {
+            if (!buttonType.getButtonData().isCancelButton()) {
+                continue;
+            }
+            Node node = dialog.getDialogPane().lookupButton(buttonType);
+            if (node instanceof Button button) {
+                applyButtonStyleClass(button, "delete-button");
+            }
         }
     }
 

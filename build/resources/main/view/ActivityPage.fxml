@@ -14,14 +14,15 @@
                     <Label fx:id="activityLocationLabel" styleClass="muted" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
-                <Button text="Edit Activity" fx:id="editActivityButton" styleClass="ghost-button" />
-                <Button text="Back" fx:id="backButton" styleClass="ghost-button" />
+                <Button text="Edit Activity" fx:id="editActivityButton" styleClass="edit-button" />
+                <Button text="Back" fx:id="backButton" styleClass="secondary-button" />
             </HBox>
             <Label text="Expenses" styleClass="section-title" />
             <ListView fx:id="expenseListView" prefHeight="200" />
             <HBox spacing="10">
-                <Button text="Add Expense" fx:id="addExpenseButton" />
-                <Button text="Edit Expense" fx:id="editExpenseButton" styleClass="ghost-button" />
+                <Button text="Add Expense" fx:id="addExpenseButton" styleClass="add-button" />
+                <Button text="Edit Expense" fx:id="editExpenseButton" styleClass="edit-button" />
+                <Button text="Delete Expense" fx:id="deleteExpenseButton" styleClass="delete-button" />
             </HBox>
         </VBox>
     </center>

@@ -14,7 +14,8 @@
                     <Label fx:id="tripLocationLabel" styleClass="muted" />
                 </VBox>
                 <Region HBox.hgrow="ALWAYS" />
-                <Button text="Back" fx:id="backButton" styleClass="ghost-button" />
+                <Button text="Edit Trip" fx:id="editTripButton" styleClass="edit-button" />
+                <Button text="Back" fx:id="backButton" styleClass="secondary-button" />
             </HBox>
             <Separator styleClass="section-separator" />
             <VBox spacing="10" styleClass="card section-card">
@@ -34,8 +35,8 @@
                 </HBox>
                 <ListView fx:id="activityListView" prefHeight="200" />
                 <HBox spacing="10">
-                    <Button text="Add Activity" fx:id="addActivityButton" />
-                    <Button text="Edit Activity" fx:id="editActivityButton" styleClass="ghost-button" />
+                    <Button text="Add Activity" fx:id="addActivityButton" styleClass="add-button" />
+                    <Button text="Edit Activity" fx:id="editActivityButton" styleClass="edit-button" />
                 </HBox>
             </VBox>
             <Separator styleClass="section-separator" />
@@ -43,8 +44,9 @@
                 <Label text="Expenses" styleClass="section-title" />
                 <ListView fx:id="expenseListView" prefHeight="200" />
                 <HBox spacing="10">
-                    <Button text="Add Expense" fx:id="addExpenseButton" />
-                    <Button text="Edit Expense" fx:id="editExpenseButton" styleClass="ghost-button" />
+                    <Button text="Add Expense" fx:id="addExpenseButton" styleClass="add-button" />
+                    <Button text="Edit Expense" fx:id="editExpenseButton" styleClass="edit-button" />
+                    <Button text="Delete Expense" fx:id="deleteExpenseButton" styleClass="delete-button" />
                 </HBox>
                 <Label fx:id="totalCostLabel" styleClass="section-title" />
             </VBox>

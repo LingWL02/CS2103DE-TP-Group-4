@@ -7,6 +7,7 @@ import javafx.scene.control.ListView;
 import activity.Activity;
 import expense.Expense;
 import expense.ExpenseRepository;
+import javafx.collections.ListChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Dialog;
@@ -14,12 +15,14 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import expense.Expense.Currency;
 import expense.Expense.Type;
@@ -55,6 +58,8 @@ public class ActivityPage {
     private Button addExpenseButton;
     @FXML
     private Button editExpenseButton;
+    @FXML
+    private Button deleteExpenseButton;
     @FXML
     private Button backButton;
 
@@ -144,6 +149,9 @@ public class ActivityPage {
         addExpenseButton.setOnAction(e -> handleAddExpense());
         if (editExpenseButton != null) {
             editExpenseButton.setOnAction(e -> handleEditExpense());
+        }
+        if (deleteExpenseButton != null) {
+            deleteExpenseButton.setOnAction(e -> handleDeleteExpense());
         }
         if (editActivityButton != null) {
             editActivityButton.setOnAction(e -> handleEditActivity());
@@ -286,6 +294,28 @@ public class ActivityPage {
         });
     }
 
+    private void handleDeleteExpense() {
+        Expense selectedExpense = expenseListView.getSelectionModel().getSelectedItem();
+        if (selectedExpense == null) {
+            showError("Please select an expense to delete.");
+            return;
+        }
+
+        try {
+            activity.deleteExpenseById(selectedExpense.getId());
+            if (tripManager != null) {
+                tripManager.saveToFile();
+            }
+            if (mainWindow != null) {
+                mainWindow.cleanupExpenseIfOrphaned(selectedExpense.getId());
+                mainWindow.refreshHeaderActivitySummary();
+            }
+            expenseObservableList.setAll(activity.getExpenses());
+        } catch (Exception e) {
+            showError("Failed to delete expense: " + e.getMessage());
+        }
+    }
+
     private void handleEditActivity() {
         if (activity == null) {
             showError("No activity selected.");
@@ -329,7 +359,7 @@ public class ActivityPage {
             locationCombo.getSelectionModel().select(activity.getLocation());
         }
 
-        Button newLocationButton = new Button("New...");
+        Button newLocationButton = createAddButton("New...");
         newLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 location.Location created = mainWindow.promptAddLocation();
@@ -340,7 +370,7 @@ public class ActivityPage {
             }
         });
 
-        Button editLocationButton = new Button("Edit...");
+        Button editLocationButton = createEditButton("Edit...");
         editLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 location.Location edited = mainWindow.promptEditLocation(locationCombo.getValue());
@@ -351,7 +381,7 @@ public class ActivityPage {
             }
         });
 
-        Button deleteLocationButton = new Button("Delete");
+        Button deleteLocationButton = createDeleteButton("Delete");
         deleteLocationButton.setOnAction(e -> {
             if (mainWindow != null) {
                 mainWindow.deleteLocationFromUi(locationCombo.getValue(), () -> locationCombo.getItems().setAll(mainWindow.getAvailableLocations()));
@@ -368,7 +398,8 @@ public class ActivityPage {
         grid.add(new Label("Start Time (HH:mm):"), 0, 2); grid.add(startTimeField, 1, 2);
         grid.add(new Label("End Date:"), 0, 3); grid.add(endDatePicker, 1, 3);
         grid.add(new Label("End Time (HH:mm):"), 0, 4); grid.add(endTimeField, 1, 4);
-        grid.add(new Label("Location:"), 0, 5); grid.add(new HBox(8, locationCombo, newLocationButton, editLocationButton, deleteLocationButton), 1, 5);
+        grid.add(new Label("Location:"), 0, 5);
+        grid.add(createResponsiveActionRow(locationCombo, newLocationButton, editLocationButton, deleteLocationButton), 1, 5);
         grid.add(new Label("Type:"), 0, 6); grid.add(typeCombo, 1, 6);
 
         dialog.getDialogPane().setContent(grid);
@@ -426,6 +457,21 @@ public class ActivityPage {
         if (!dialog.getDialogPane().getStyleClass().contains("form-dialog")) {
             dialog.getDialogPane().getStyleClass().add("form-dialog");
         }
+        applyDialogActionStyles(dialog);
+        dialog.getDialogPane().getButtonTypes().addListener((ListChangeListener<ButtonType>) change ->
+                applyDialogActionStyles(dialog));
+    }
+
+    private void applyDialogActionStyles(Dialog<?> dialog) {
+        for (ButtonType buttonType : dialog.getDialogPane().getButtonTypes()) {
+            if (!buttonType.getButtonData().isCancelButton()) {
+                continue;
+            }
+            Node node = dialog.getDialogPane().lookupButton(buttonType);
+            if (node instanceof Button button) {
+                applyButtonStyleClass(button, "delete-button");
+            }
+        }
     }
 
     private void chooseImagePath(Dialog<?> dialog, TextField targetField) {
@@ -438,6 +484,44 @@ public class ActivityPage {
         File file = chooser.showOpenDialog(window);
         if (file != null) {
             targetField.setText(file.getAbsolutePath());
+        }
+    }
+
+    private Button createAddButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "add-button");
+        return button;
+    }
+
+    private Button createEditButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "edit-button");
+        return button;
+    }
+
+    private Button createDeleteButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "delete-button");
+        return button;
+    }
+
+    private HBox createResponsiveActionRow(ComboBox<?> combo, Button addButton, Button editButton, Button deleteButton) {
+        combo.setMaxWidth(Double.MAX_VALUE);
+        combo.setPrefWidth(240);
+        HBox.setHgrow(combo, Priority.ALWAYS);
+        lockButtonWidth(addButton);
+        lockButtonWidth(editButton);
+        lockButtonWidth(deleteButton);
+        return new HBox(8, combo, addButton, editButton, deleteButton);
+    }
+
+    private void lockButtonWidth(Button button) {
+        button.setMinWidth(84);
+    }
+
+    private void applyButtonStyleClass(Button button, String styleClass) {
+        if (!button.getStyleClass().contains(styleClass)) {
+            button.getStyleClass().add(styleClass);
         }
     }
 

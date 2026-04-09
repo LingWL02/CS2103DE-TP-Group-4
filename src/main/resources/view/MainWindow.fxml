@@ -17,8 +17,16 @@
             </HBox>
             <VBox spacing="4" styleClass="hero-activity-panel">
                 <Label text="Live Activity Snapshot" styleClass="hero-panel-title" />
-                <Label fx:id="ongoingActivityLabel" styleClass="hero-panel-text" />
-                <Label fx:id="upcomingActivityLabel" styleClass="hero-panel-text" />
+                <HBox spacing="12" styleClass="hero-snapshot-grid">
+                    <VBox spacing="6" styleClass="snapshot-column" HBox.hgrow="ALWAYS">
+                        <Label text="Ongoing" styleClass="snapshot-column-title" />
+                        <VBox fx:id="ongoingActivityContainer" spacing="6" />
+                    </VBox>
+                    <VBox spacing="6" styleClass="snapshot-column" HBox.hgrow="ALWAYS">
+                        <Label text="Upcoming" styleClass="snapshot-column-title" />
+                        <VBox fx:id="upcomingActivityContainer" spacing="6" />
+                    </VBox>
+                </HBox>
             </VBox>
         </VBox>
     </top>
@@ -28,9 +36,9 @@
                 <Label text="Trips" styleClass="section-title" />
                 <ListView fx:id="tripListView" VBox.vgrow="ALWAYS" />
                 <HBox spacing="10">
-                    <Button text="Add Trip" fx:id="addTripButton" />
-                    <Button text="Edit Trip" fx:id="editTripButton" styleClass="ghost-button" />
-                    <Button text="Delete Trip" fx:id="deleteTripButton" />
+                    <Button text="Add Trip" fx:id="addTripButton" styleClass="add-button" />
+                    <Button text="Edit Trip" fx:id="editTripButton" styleClass="edit-button" />
+                    <Button text="Delete Trip" fx:id="deleteTripButton" styleClass="delete-button" />
                 </HBox>
             </VBox>
         </HBox>

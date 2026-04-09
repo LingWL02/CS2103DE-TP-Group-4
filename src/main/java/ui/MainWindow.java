@@ -6,9 +6,11 @@ import country.CountryRepository;
 import expense.ExpenseRepository;
 import exceptions.TimeIntervalConflictException;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -27,6 +29,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -52,6 +56,8 @@ import java.util.List;
 
 public class MainWindow {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+    private static final int MAX_ONGOING_SNAPSHOT_ITEMS = 2;
+    private static final int MAX_UPCOMING_SNAPSHOT_ITEMS = 3;
 
     private enum PageContext {
         HOME,
@@ -74,9 +80,9 @@ public class MainWindow {
     @FXML
     private Button helpButton;
     @FXML
-    private Label ongoingActivityLabel;
+    private VBox ongoingActivityContainer;
     @FXML
-    private Label upcomingActivityLabel;
+    private VBox upcomingActivityContainer;
 
     private final TripManager tripManager = new TripManager();
     private final CountryRepository countryRepository = new CountryRepository();
@@ -257,6 +263,46 @@ public class MainWindow {
         return updated;
     }
 
+    public boolean promptEditTrip(Trip trip) {
+        if (trip == null) {
+            showError("Please select a trip to edit.");
+            return false;
+        }
+        return openEditTripDialog(trip);
+    }
+
+    public boolean deleteTripFromUi(Trip trip) {
+        if (trip == null) {
+            showError("Please select a trip to delete.");
+            return false;
+        }
+        try {
+            tripManager.deleteTripById(trip.getId());
+            tripManager.saveToFile();
+            removeExpensesOwnedByTrip(trip);
+            tripObservableList.setAll(tripManager.getTrips());
+            refreshHeaderActivitySummary();
+            return true;
+        } catch (Exception e) {
+            showError("Failed to delete trip: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public void cleanupExpenseIfOrphaned(int expenseId) {
+        if (isExpenseReferencedAnywhere(expenseId)) {
+            return;
+        }
+        try {
+            expenseRepository.deleteExpenseById(expenseId);
+            expenseRepository.save();
+        } catch (IllegalArgumentException ignored) {
+            // Already removed from repository.
+        } catch (Exception e) {
+            showError("Failed to clean up expense: " + e.getMessage());
+        }
+    }
+
     public boolean deleteCountryFromUi(Country country, Runnable onDataChanged) {
         if (country == null) {
             showError("Please select a country to delete.");
@@ -275,19 +321,26 @@ public class MainWindow {
 
     public void showTripGuide() {
         showGuideDialog("Trip Page Guide", "Trip page controls",
-                "Use this page to review timeline, activities, and expenses.\n"
-                + "- Top ? button: open this guide.\n"
-                + "- Use the New... buttons inside forms to add countries/locations.\n"
-                        + "- Timeline shows whole activities only per day (no partial clipping).\n"
-                        + "- Filter activities by type from the dropdown.");
+            List.of(
+                "Use Edit Trip to change trip name, dates, and country.",
+                "Use Add Activity to build your itinerary for this trip.",
+                "Use Edit Activity to update timing, type, and location.",
+                "Use Add Expense, Edit Expense, and Delete Expense to manage costs.",
+                "Use the activity filter to focus on one activity type.",
+                "Use Back to return to the trips list."
+            ));
     }
 
     public void showActivityGuide() {
         showGuideDialog("Activity Page Guide", "Activity expense controls",
-                "Use this page to manage expenses linked to one activity.\n"
-                        + "- Top ? button: open this guide.\n"
-                + "- Use the New... buttons inside forms to add countries/locations.\n"
-                        + "- Add Expense to attach costs to the current activity.");
+            List.of(
+                "Use this page to manage expenses tied to one activity.",
+                "Use Add Expense to record new spending.",
+                "Use Edit Expense to correct amounts, category, currency, or image.",
+                "Use Delete Expense to remove an entry that is no longer needed.",
+                "Use Edit Activity to update activity details without leaving this page.",
+                "Use Back to return to the trip page."
+            ));
     }
 
     private void showGuideForCurrentPage() {
@@ -342,7 +395,7 @@ public class MainWindow {
             countryCombo.getSelectionModel().selectFirst();
         }
 
-        Button newCountryButton = new Button("New...");
+        Button newCountryButton = createAddButton("New...");
         newCountryButton.setOnAction(e -> {
             Country country = openAddCountryDialog(dialog.getDialogPane().getScene().getWindow());
             if (country != null) {
@@ -351,7 +404,7 @@ public class MainWindow {
             }
         });
 
-        Button editCountryButton = new Button("Edit...");
+        Button editCountryButton = createEditButton("Edit...");
         editCountryButton.setOnAction(e -> {
             Country edited = promptEditCountry(countryCombo.getValue());
             if (edited != null) {
@@ -360,7 +413,7 @@ public class MainWindow {
             }
         });
 
-        Button deleteCountryButton = new Button("Delete");
+        Button deleteCountryButton = createDeleteButton("Delete");
         deleteCountryButton.setOnAction(e -> deleteCountryFromUi(countryCombo.getValue(), refreshCountries));
 
         grid.add(new Label("Name*"), 0, 0);
@@ -374,7 +427,7 @@ public class MainWindow {
         grid.add(new Label("End Time (HH:mm)"), 0, 4);
         grid.add(endTimeField, 1, 4);
         grid.add(new Label("Country"), 0, 5);
-        grid.add(new HBox(8, countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 5);
+        grid.add(createResponsiveActionRow(countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 5);
 
         dialog.getDialogPane().setContent(grid);
         dialog.setResultConverter(dialogButton -> {
@@ -417,14 +470,7 @@ public class MainWindow {
         if (selected == null) {
             return;
         }
-        try {
-            tripManager.deleteTripById(selected.getId());
-            tripManager.saveToFile();
-            tripObservableList.setAll(tripManager.getTrips());
-            refreshHeaderActivitySummary();
-        } catch (Exception e) {
-            showError("Failed to delete trip: " + e.getMessage());
-        }
+        deleteTripFromUi(selected);
     }
 
     private void handleEditTrip() {
@@ -433,6 +479,11 @@ public class MainWindow {
             showError("Please select a trip to edit.");
             return;
         }
+
+        openEditTripDialog(selected);
+    }
+
+    private boolean openEditTripDialog(Trip selected) {
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Edit Trip");
@@ -470,7 +521,7 @@ public class MainWindow {
             countryCombo.getSelectionModel().select(selected.getCountry());
         }
 
-        Button newCountryButton = new Button("New...");
+        Button newCountryButton = createAddButton("New...");
         newCountryButton.setOnAction(e -> {
             Country created = promptAddCountry();
             if (created != null) {
@@ -479,7 +530,7 @@ public class MainWindow {
             }
         });
 
-        Button editCountryButton = new Button("Edit...");
+        Button editCountryButton = createEditButton("Edit...");
         editCountryButton.setOnAction(e -> {
             Country edited = promptEditCountry(countryCombo.getValue());
             if (edited != null) {
@@ -488,7 +539,7 @@ public class MainWindow {
             }
         });
 
-        Button deleteCountryButton = new Button("Delete");
+        Button deleteCountryButton = createDeleteButton("Delete");
         deleteCountryButton.setOnAction(e -> deleteCountryFromUi(countryCombo.getValue(), refreshCountries));
 
         grid.add(new Label("Name*"), 0, 0);
@@ -502,9 +553,10 @@ public class MainWindow {
         grid.add(new Label("End Time (HH:mm)"), 0, 4);
         grid.add(endTimeField, 1, 4);
         grid.add(new Label("Country"), 0, 5);
-        grid.add(new HBox(8, countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 5);
+        grid.add(createResponsiveActionRow(countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 5);
 
         dialog.getDialogPane().setContent(grid);
+        final boolean[] updated = new boolean[]{false};
         dialog.showAndWait().ifPresent(result -> {
             if (result != saveButtonType) {
                 return;
@@ -520,10 +572,61 @@ public class MainWindow {
                 tripManager.saveToFile();
                 tripObservableList.setAll(tripManager.getTrips());
                 refreshHeaderActivitySummary();
+                updated[0] = true;
             } catch (Exception e) {
                 showError("Failed to edit trip: " + e.getMessage());
             }
         });
+        return updated[0];
+    }
+
+    private void removeExpensesOwnedByTrip(Trip trip) {
+        List<Integer> removableExpenseIds = new ArrayList<>();
+        for (expense.Expense expense : trip.getExpenses()) {
+            removableExpenseIds.add(expense.getId());
+        }
+        for (Activity activity : trip.getActivities()) {
+            for (expense.Expense expense : activity.getExpenses()) {
+                removableExpenseIds.add(expense.getId());
+            }
+        }
+
+        for (Integer expenseId : removableExpenseIds.stream().distinct().toList()) {
+            if (isExpenseReferencedAnywhere(expenseId)) {
+                continue;
+            }
+            try {
+                expenseRepository.deleteExpenseById(expenseId);
+            } catch (IllegalArgumentException ignored) {
+                // Expense may already be removed by a previous pass.
+            }
+        }
+
+        if (!removableExpenseIds.isEmpty()) {
+            try {
+                expenseRepository.save();
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to save expenses after trip deletion", e);
+            }
+        }
+    }
+
+    private boolean isExpenseReferencedAnywhere(int expenseId) {
+        for (Trip trip : tripManager.getTrips()) {
+            for (expense.Expense expense : trip.getExpenses()) {
+                if (expense.getId() == expenseId) {
+                    return true;
+                }
+            }
+            for (Activity activity : trip.getActivities()) {
+                for (expense.Expense expense : activity.getExpenses()) {
+                    if (expense.getId() == expenseId) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private Country openAddCountryDialog(Window owner) {
@@ -662,7 +765,7 @@ public class MainWindow {
             countryCombo.getSelectionModel().selectFirst();
         }
 
-        Button newCountryButton = new Button("New...");
+        Button newCountryButton = createAddButton("New...");
         newCountryButton.setOnAction(e -> {
             Country country = openAddCountryDialog(dialog.getDialogPane().getScene().getWindow());
             if (country != null) {
@@ -671,7 +774,7 @@ public class MainWindow {
             }
         });
 
-        Button editCountryButton = new Button("Edit...");
+        Button editCountryButton = createEditButton("Edit...");
         editCountryButton.setOnAction(e -> {
             Country edited = promptEditCountry(countryCombo.getValue());
             if (edited != null) {
@@ -680,7 +783,7 @@ public class MainWindow {
             }
         });
 
-        Button deleteCountryButton = new Button("Delete");
+        Button deleteCountryButton = createDeleteButton("Delete");
         deleteCountryButton.setOnAction(e -> deleteCountryFromUi(countryCombo.getValue(), refreshCountries));
 
         Button uploadButton = new Button("Upload Image...");
@@ -689,7 +792,7 @@ public class MainWindow {
         grid.add(new Label("Name*"), 0, 0);
         grid.add(nameField, 1, 0);
         grid.add(new Label("Country"), 0, 1);
-        grid.add(new HBox(8, countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 1);
+        grid.add(createResponsiveActionRow(countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 1);
         grid.add(new Label("City"), 0, 2);
         grid.add(cityField, 1, 2);
         grid.add(new Label("Address"), 0, 3);
@@ -772,7 +875,7 @@ public class MainWindow {
             countryCombo.getSelectionModel().select(location.getCountry());
         }
 
-        Button newCountryButton = new Button("New...");
+        Button newCountryButton = createAddButton("New...");
         newCountryButton.setOnAction(e -> {
             Country created = promptAddCountry();
             if (created != null) {
@@ -781,7 +884,7 @@ public class MainWindow {
             }
         });
 
-        Button editCountryButton = new Button("Edit...");
+        Button editCountryButton = createEditButton("Edit...");
         editCountryButton.setOnAction(e -> {
             Country edited = promptEditCountry(countryCombo.getValue());
             if (edited != null) {
@@ -790,7 +893,7 @@ public class MainWindow {
             }
         });
 
-        Button deleteCountryButton = new Button("Delete");
+        Button deleteCountryButton = createDeleteButton("Delete");
         deleteCountryButton.setOnAction(e -> deleteCountryFromUi(countryCombo.getValue(), refreshCountries));
 
         Button uploadButton = new Button("Upload Image...");
@@ -799,7 +902,7 @@ public class MainWindow {
         grid.add(new Label("Name*"), 0, 0);
         grid.add(nameField, 1, 0);
         grid.add(new Label("Country"), 0, 1);
-        grid.add(new HBox(8, countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 1);
+        grid.add(createResponsiveActionRow(countryCombo, newCountryButton, editCountryButton, deleteCountryButton), 1, 1);
         grid.add(new Label("City"), 0, 2);
         grid.add(cityField, 1, 2);
         grid.add(new Label("Address"), 0, 3);
@@ -850,6 +953,44 @@ public class MainWindow {
         File file = chooser.showOpenDialog(window);
         if (file != null) {
             targetField.setText(file.getAbsolutePath());
+        }
+    }
+
+    private Button createAddButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "add-button");
+        return button;
+    }
+
+    private Button createEditButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "edit-button");
+        return button;
+    }
+
+    private Button createDeleteButton(String text) {
+        Button button = new Button(text);
+        applyButtonStyleClass(button, "delete-button");
+        return button;
+    }
+
+    private HBox createResponsiveActionRow(ComboBox<?> combo, Button addButton, Button editButton, Button deleteButton) {
+        combo.setMaxWidth(Double.MAX_VALUE);
+        combo.setPrefWidth(260);
+        HBox.setHgrow(combo, Priority.ALWAYS);
+        lockButtonWidth(addButton);
+        lockButtonWidth(editButton);
+        lockButtonWidth(deleteButton);
+        return new HBox(8, combo, addButton, editButton, deleteButton);
+    }
+
+    private void lockButtonWidth(Button button) {
+        button.setMinWidth(84);
+    }
+
+    private void applyButtonStyleClass(Button button, String styleClass) {
+        if (!button.getStyleClass().contains(styleClass)) {
+            button.getStyleClass().add(styleClass);
         }
     }
 
@@ -1019,69 +1160,156 @@ public class MainWindow {
     }
 
     public void refreshHeaderActivitySummary() {
-        if (ongoingActivityLabel == null || upcomingActivityLabel == null) {
+        if (ongoingActivityContainer == null || upcomingActivityContainer == null) {
             return;
         }
 
+        ongoingActivityContainer.getChildren().clear();
+        upcomingActivityContainer.getChildren().clear();
+
         LocalDateTime now = LocalDateTime.now();
-        List<Activity> activities = new ArrayList<>();
+        List<ActivitySummaryEntry> activityEntries = new ArrayList<>();
         for (Trip trip : tripManager.getTrips()) {
-            activities.addAll(trip.getActivities());
+            for (Activity activity : trip.getActivities()) {
+                activityEntries.add(new ActivitySummaryEntry(activity, trip.getName()));
+            }
         }
 
-        List<Activity> ongoing = activities.stream()
-                .filter(activity -> !activity.getStartDateTime().isAfter(now)
-                        && activity.getEndDateTime().isAfter(now))
-                .sorted(Comparator.comparing(Activity::getEndDateTime))
+        List<ActivitySummaryEntry> ongoing = activityEntries.stream()
+                .filter(entry -> !entry.activity.getStartDateTime().isAfter(now)
+                        && entry.activity.getEndDateTime().isAfter(now))
+                .sorted(Comparator.comparing(entry -> entry.activity.getEndDateTime()))
                 .toList();
 
-        Activity nextUpcoming = activities.stream()
-                .filter(activity -> activity.getStartDateTime().isAfter(now))
-                .min(Comparator.comparing(Activity::getStartDateTime))
-                .orElse(null);
+        List<ActivitySummaryEntry> upcoming = activityEntries.stream()
+                .filter(entry -> entry.activity.getStartDateTime().isAfter(now))
+                .sorted(Comparator.comparing(entry -> entry.activity.getStartDateTime()))
+                .toList();
 
         if (ongoing.isEmpty()) {
-            ongoingActivityLabel.setText("Ongoing: none");
+            ongoingActivityContainer.getChildren().add(createSnapshotEmptyCard("No ongoing activities"));
         } else {
-            Activity first = ongoing.get(0);
-            ongoingActivityLabel.setText("Ongoing: " + first.getName() + " (until "
-                    + first.getEndDateTime().format(DATE_TIME_FORMAT) + ")");
+            int max = Math.min(MAX_ONGOING_SNAPSHOT_ITEMS, ongoing.size());
+            for (int i = 0; i < max; i++) {
+                ongoingActivityContainer.getChildren().add(createSnapshotCard(ongoing.get(i), true));
+            }
         }
 
-        if (nextUpcoming == null) {
-            upcomingActivityLabel.setText("Upcoming: none");
+        if (upcoming.isEmpty()) {
+            upcomingActivityContainer.getChildren().add(createSnapshotEmptyCard("No upcoming activities"));
         } else {
-            upcomingActivityLabel.setText("Upcoming: " + nextUpcoming.getName() + " ("
-                    + nextUpcoming.getStartDateTime().format(DATE_TIME_FORMAT) + ")");
+            int max = Math.min(MAX_UPCOMING_SNAPSHOT_ITEMS, upcoming.size());
+            for (int i = 0; i < max; i++) {
+                upcomingActivityContainer.getChildren().add(createSnapshotCard(upcoming.get(i), false));
+            }
+        }
+    }
+
+    private VBox createSnapshotCard(ActivitySummaryEntry entry, boolean isOngoing) {
+        VBox card = new VBox(4);
+        card.getStyleClass().add("snapshot-item");
+
+        Label activityName = new Label(entry.activity.getName());
+        activityName.getStyleClass().add("snapshot-name");
+        activityName.setWrapText(true);
+
+        String timeText = isOngoing
+                ? "Until " + entry.activity.getEndDateTime().format(DATE_TIME_FORMAT)
+                : entry.activity.getStartDateTime().format(DATE_TIME_FORMAT);
+        Label timeLabel = new Label(timeText);
+        timeLabel.getStyleClass().add("snapshot-meta");
+
+        HBox tagRow = new HBox(6);
+        Label tripTag = createSnapshotTag("Trip: " + entry.tripName);
+        String typeText = entry.activity.getTypes().isEmpty() ? "Type: OTHER"
+                : "Type: " + entry.activity.getTypes().get(0).name();
+        Label typeTag = createSnapshotTag(typeText);
+        tagRow.getChildren().addAll(tripTag, typeTag);
+
+        card.getChildren().addAll(activityName, timeLabel, tagRow);
+        return card;
+    }
+
+    private Label createSnapshotTag(String text) {
+        Label tag = new Label(text);
+        tag.getStyleClass().add("snapshot-tag");
+        return tag;
+    }
+
+    private VBox createSnapshotEmptyCard(String text) {
+        VBox card = new VBox();
+        card.getStyleClass().addAll("snapshot-item", "snapshot-empty");
+        Label label = new Label(text);
+        label.getStyleClass().add("snapshot-meta");
+        card.getChildren().add(label);
+        return card;
+    }
+
+    private static class ActivitySummaryEntry {
+        private final Activity activity;
+        private final String tripName;
+
+        private ActivitySummaryEntry(Activity activity, String tripName) {
+            this.activity = activity;
+            this.tripName = tripName;
         }
     }
 
     private void showHomeGuide() {
         showGuideDialog("Home Page Guide", "Top-level controls",
-                "Use this page to manage your trips.\n"
-                + "- Top ? button: show this page-specific guide.\n"
-            + "- Use Delete buttons near country/location selectors (or right-click dropdown entries).\n"
-                        + "- Add Trip: create a trip linked to a country.\n"
-                        + "- Double-click a trip to open itinerary details.");
+                List.of(
+                "Use Add Trip to create a new trip.",
+                "Select a trip and use Edit Trip to update details.",
+                "Select a trip and use Delete Trip to remove it.",
+                "Double-click a trip card to open its itinerary and expenses.",
+                "Inside add/edit forms, use New, Edit, and Delete beside selectors to manage countries and locations."
+                ));
     }
 
-    private void showGuideDialog(String title, String header, String body) {
+    private void showGuideDialog(String title, String header, List<String> pageNotes) {
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle(title);
         dialog.setHeaderText(header);
         applyDialogTheme(dialog, "guide-dialog");
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
-        VBox content = new VBox(8);
+        VBox content = new VBox(10);
         content.getStyleClass().add("guide-content");
 
-        Label bodyLabel = new Label(body);
-        bodyLabel.setWrapText(true);
-        bodyLabel.getStyleClass().add("guide-text");
+        VBox quickStartSection = createGuideSection("Quick Start", List.of(
+            "Open this guide any time using the ? button on the current page.",
+            "Use Add to create items, Edit to update items, and Delete to remove items.",
+            "Use Back buttons to return to the previous page.",
+            "Use selector buttons in forms to manage countries and locations without leaving the dialog."
+        ));
 
-        content.getChildren().add(bodyLabel);
+        VBox pageSection = createGuideSection("This Page", pageNotes);
+        content.getChildren().addAll(quickStartSection, pageSection);
         dialog.getDialogPane().setContent(content);
         dialog.showAndWait();
+    }
+
+    private VBox createGuideSection(String title, List<String> notes) {
+        VBox section = new VBox(6);
+        section.getStyleClass().add("guide-section");
+
+        Label titleLabel = new Label(title);
+        titleLabel.getStyleClass().add("guide-section-title");
+        section.getChildren().add(titleLabel);
+
+        for (String note : notes) {
+            HBox row = new HBox(8);
+            row.getStyleClass().add("guide-note-row");
+            Label bullet = new Label("•");
+            bullet.getStyleClass().add("guide-bullet");
+            Label text = new Label(note);
+            text.setWrapText(true);
+            text.getStyleClass().add("guide-text");
+            HBox.setHgrow(text, Priority.ALWAYS);
+            row.getChildren().addAll(bullet, text);
+            section.getChildren().add(row);
+        }
+        return section;
     }
 
     private void applyDialogTheme(Dialog<?> dialog, String styleClass) {
@@ -1091,6 +1319,26 @@ public class MainWindow {
         }
         if (styleClass != null && !styleClass.isBlank() && !dialog.getDialogPane().getStyleClass().contains(styleClass)) {
             dialog.getDialogPane().getStyleClass().add(styleClass);
+        }
+
+        applyDialogActionStyles(dialog);
+        dialog.getDialogPane().getButtonTypes().addListener((ListChangeListener<ButtonType>) change ->
+                applyDialogActionStyles(dialog));
+    }
+
+    private void applyDialogActionStyles(Dialog<?> dialog) {
+        for (ButtonType buttonType : dialog.getDialogPane().getButtonTypes()) {
+            if (!buttonType.getButtonData().isCancelButton()) {
+                continue;
+            }
+            Node node = dialog.getDialogPane().lookupButton(buttonType);
+            if (node instanceof Button button) {
+                if (dialog.getDialogPane().getStyleClass().contains("guide-dialog")) {
+                    applyButtonStyleClass(button, "secondary-button");
+                } else {
+                    applyButtonStyleClass(button, "delete-button");
+                }
+            }
         }
     }
 
