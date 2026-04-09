@@ -13,15 +13,19 @@ public abstract class BaseEntity {
 
     private String description;
 
-    private BufferedImage image;
+    private int priority;
+
+    // BufferedImage should remain runtime-only and never be serialized to JSON.
+    private transient BufferedImage image;
 
     protected BaseEntity() {
-        this(0, "");
+        this(0, "Unnamed");
     }
 
     protected BaseEntity(int id, String name) {
         setId(id);
         setName(name);
+        setPriority(0);
     }
 
     public int getId() {
@@ -40,7 +44,11 @@ public abstract class BaseEntity {
     }
 
     public void setName(String name) {
-        this.name = Objects.requireNonNull(name, "name");
+        String trimmed = Objects.requireNonNull(name, "name").trim();
+        if (trimmed.isEmpty()) {
+            throw new IllegalArgumentException("name must not be blank");
+        }
+        this.name = trimmed;
     }
 
     public String getDescription() {
@@ -49,6 +57,17 @@ public abstract class BaseEntity {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        if (priority < 0) {
+            throw new IllegalArgumentException("priority must be non-negative");
+        }
+        this.priority = priority;
     }
 
     public BufferedImage getImage() {

@@ -1,4 +1,5 @@
 package expense;
+import java.util.Locale;
 import java.util.Objects;
 
 import utilities.BaseEntity;
@@ -18,6 +19,7 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     }
 
     public enum Currency {
+        SGD,
         USD,
         EUR,
         GBP,
@@ -31,11 +33,18 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
 
     private Type type;
 
+    private String imagePath;
+
     public Expense(int id, String name, float cost, Currency currency, Type type) {
+        this(id, name, cost, currency, type, null);
+    }
+
+    public Expense(int id, String name, float cost, Currency currency, Type type, String imagePath) {
         super(id, name);
         setCost(cost);
         setCurrency(currency);
         setType(type);
+        setImagePath(imagePath);
     }
 
     public float getCost() {
@@ -65,16 +74,32 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
         this.type = Objects.requireNonNull(type, "type");
     }
 
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        if (imagePath == null) {
+            this.imagePath = null;
+            return;
+        }
+        String trimmed = imagePath.trim();
+        this.imagePath = trimmed.isEmpty() ? null : trimmed;
+    }
+
     @Override
     public Expense copy() {
-        Expense copy = new Expense(getId(), getName(), cost, currency, type);
+        Expense copy = new Expense(getId(), getName(), cost, currency, type, imagePath);
         copy.setDescription(getDescription());
+        copy.setPriority(getPriority());
         copy.setImage(getImage());
         return copy;
     }
 
     @Override
     public String toString() {
-        return getName() + " - " + getCost() + " " + getCurrency() + " (" + getType() + ")";
+        return "Expense #" + getId() + ": " + getName()
+                + " | " + String.format(Locale.US, "%.2f", getCost()) + " " + getCurrency()
+                + " | Type: " + getType();
     }
 }
