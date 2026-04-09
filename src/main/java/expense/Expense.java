@@ -19,6 +19,7 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     }
 
     public enum Currency {
+        SGD,
         USD,
         EUR,
         GBP,

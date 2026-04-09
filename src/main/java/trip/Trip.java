@@ -107,12 +107,6 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
 
     public void addActivity(Activity activity) throws TimeIntervalConflictException {
         Objects.requireNonNull(activity, "activity");
-        for (Activity existing : activities) {
-            if (activity.overlapsWith(existing)) {
-                throw new TimeIntervalConflictException(
-                        "Activity time conflict with existing activity: " + existing.getName());
-            }
-        }
         activities.add(activity);
     }
 

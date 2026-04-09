@@ -52,8 +52,8 @@ import java.util.Set;
 
 public class TripPage {
     private static final double MIN_DAY_TIMELINE_WIDTH = 220.0;
-    private static final double BLOCK_HEIGHT = 30.0;
-    private static final double LANE_GAP = 8.0;
+    private static final double BLOCK_HEIGHT = 42.0;
+    private static final double LANE_GAP = 10.0;
     private static final double MIN_BLOCK_WIDTH = 16.0;
     private static final DateTimeFormatter DAY_HEADER_FORMAT = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy");
     private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
@@ -95,6 +95,7 @@ public class TripPage {
     private Trip trip;
     private final ObservableList<Activity> activityObservableList = FXCollections.observableArrayList();
     private final ObservableList<Expense> expenseObservableList = FXCollections.observableArrayList();
+    private final Set<Integer> overlappingActivityIds = new HashSet<>();
     private final ImageAssetStore imageAssetStore = new ImageAssetStore();
     private ExpenseRepository expenseRepository;
     private MainWindow mainWindow;
@@ -108,7 +109,7 @@ public class TripPage {
         if (tripImageView != null) {
             tripImageView.setImage(resolveImage(trip.getCountry() != null ? trip.getCountry().getImagePath() : null));
         }
-        activityObservableList.setAll(trip.getActivities());
+        applyActivityFilter();
         refreshExpenseList();
         refreshTimeline();
         refreshTotalCost();
@@ -146,15 +147,18 @@ public class TripPage {
                     setText(null);
                     setGraphic(null);
                 } else {
+                    boolean overlaps = overlappingActivityIds.contains(activity.getId());
+
                     Label title = new Label(activity.getName());
                     title.getStyleClass().add("cell-title");
 
-                    Label subtitle = new Label(formatDateTimeRange(activity.getStartDateTime(), activity.getEndDateTime()));
+                    Label subtitle = new Label("When: "
+                            + formatDateTimeRange(activity.getStartDateTime(), activity.getEndDateTime()));
                     subtitle.getStyleClass().add("cell-subtitle");
 
                     Label locationMeta = new Label(activity.getLocation() != null
-                            ? "Location: " + activity.getLocation().toString()
-                            : "Location: none");
+                            ? "Where: " + activity.getLocation().toString()
+                            : "Where: none");
                     locationMeta.getStyleClass().add("cell-meta");
 
                     Label typeChip = new Label(activity.getTypes().isEmpty()
@@ -162,8 +166,14 @@ public class TripPage {
                             : "Type: " + activity.getTypes().get(0).name());
                     typeChip.getStyleClass().add("meta-chip");
 
-                    HBox chipRow = new HBox(6, typeChip);
-                    VBox cardText = new VBox(3, title, subtitle, locationMeta, chipRow);
+                    HBox chipRow = new HBox(6);
+                    chipRow.getChildren().add(typeChip);
+                    if (overlaps) {
+                        Label overlapChip = new Label("Overlap");
+                        overlapChip.getStyleClass().add("overlap-chip");
+                        chipRow.getChildren().add(overlapChip);
+                    }
+                    VBox cardText = new VBox(4, title, subtitle, locationMeta, chipRow);
 
                     ImageView imageView = new ImageView();
                     imageView.setFitHeight(56);
@@ -181,6 +191,10 @@ public class TripPage {
 
                     VBox card = new VBox(content);
                     card.getStyleClass().add("friendly-cell");
+                    if (overlaps) {
+                        card.getStyleClass().add("friendly-cell-overlap");
+                        title.getStyleClass().add("cell-title-overlap");
+                    }
                     setText(null);
                     setGraphic(card);
                 }
@@ -286,6 +300,7 @@ public class TripPage {
             return;
         }
 
+        refreshActivityOverlapIndex();
         List<Activity> activities = new ArrayList<>(trip.getActivities());
         activities.sort(Comparator.comparing(Activity::getStartDateTime));
         Set<Activity> overlappingActivities = findOverlappingActivities(activities);
@@ -318,27 +333,16 @@ public class TripPage {
 
         Label itemCountBadge = createTimelineBadge(segments.size() + " item(s)", "timeline-day-badge");
         Label overlapBadge = overlapCount > 0
-                ? createTimelineBadge(overlapCount + " overlap(s)", "timeline-day-badge-overlap")
-                : createTimelineBadge("No overlaps", "timeline-day-badge-clear");
+            ? createTimelineBadge(overlapCount + " overlap(s)", "timeline-day-badge-overlap")
+            : createTimelineBadge("No overlaps", "timeline-day-badge-clear");
 
         headerRow.getChildren().addAll(dayHeader, spacer, itemCountBadge, overlapBadge);
 
         Pane ruler = createHourRuler(timelineWidth);
         Pane timelinePane = createTimelinePane(segments, timelineWidth);
 
-        HBox legendRow = createTimelineLegendRow();
-
-        dayBox.getChildren().addAll(headerRow, legendRow, ruler, timelinePane);
+        dayBox.getChildren().addAll(headerRow, ruler, timelinePane);
         return dayBox;
-    }
-
-    private HBox createTimelineLegendRow() {
-        Label scheduledChip = createTimelineBadge("Scheduled", "timeline-legend-chip");
-        Label overlapChip = createTimelineBadge("Overlap", "timeline-legend-chip-overlap");
-        HBox legend = new HBox(6, scheduledChip, overlapChip);
-        legend.setAlignment(Pos.CENTER_LEFT);
-        legend.getStyleClass().add("timeline-legend-row");
-        return legend;
     }
 
     private Label createTimelineBadge(String text, String styleClass) {
@@ -386,7 +390,7 @@ public class TripPage {
         }
 
         for (DaySegment segment : segments) {
-            Label activityBlock = new Label(createBlockText(segment));
+            VBox activityBlock = new VBox(1.5);
             activityBlock.setAlignment(Pos.CENTER_LEFT);
             activityBlock.setPrefHeight(BLOCK_HEIGHT);
             activityBlock.setMinHeight(BLOCK_HEIGHT);
@@ -397,9 +401,25 @@ public class TripPage {
             width = Math.min(width, maxAllowedWidth);
             double y = 6 + segment.lane * (BLOCK_HEIGHT + LANE_GAP);
 
+            String typeText = segment.activity.getTypes().isEmpty()
+                    ? "OTHER"
+                    : segment.activity.getTypes().get(0).name();
+            Label blockName = new Label(segment.activity.getName());
+            blockName.getStyleClass().add("timeline-block-name");
+            blockName.setWrapText(true);
+
+            Label blockMeta = new Label(createTimeRangeText(segment.startMinute, segment.endMinute)
+                    + " • " + typeText
+                    + (segment.multiDay ? " • Multi-day" : ""));
+            blockMeta.getStyleClass().add("timeline-block-meta");
+            blockMeta.setWrapText(true);
+
+            activityBlock.getChildren().addAll(blockName, blockMeta);
+
             activityBlock.setLayoutX(x);
             activityBlock.setLayoutY(y);
             activityBlock.setPrefWidth(width);
+            activityBlock.setMaxWidth(width);
             activityBlock.getStyleClass().add("timeline-activity-block");
 
             if (segment.overlaps) {
@@ -407,8 +427,8 @@ public class TripPage {
             }
 
             String warning = segment.overlaps ? " (overlap detected)" : "";
-                int durationMinutes = (int) Duration.between(segment.activity.getStartDateTime(), segment.activity.getEndDateTime()).toMinutes();
-                activityBlock.setTooltip(new Tooltip(segment.activity.getName() + ": "
+            int durationMinutes = (int) Duration.between(segment.activity.getStartDateTime(), segment.activity.getEndDateTime()).toMinutes();
+                Tooltip.install(activityBlock, new Tooltip(segment.activity.getName() + ": "
                     + formatDateTimeRange(segment.activity.getStartDateTime(), segment.activity.getEndDateTime())
                     + ", duration " + formatDuration(durationMinutes) + warning));
             timelinePane.getChildren().add(activityBlock);
@@ -430,14 +450,6 @@ public class TripPage {
             }
             timelinePane.getChildren().add(line);
         }
-    }
-
-    private String createBlockText(DaySegment segment) {
-        String typeBadge = segment.activity.getTypes().isEmpty() ? "" : " [" + segment.activity.getTypes().get(0).name() + "]";
-        if (segment.multiDay) {
-            return segment.activity.getName() + typeBadge + " (Multi-day)";
-        }
-        return segment.activity.getName() + typeBadge + " " + createTimeRangeText(segment.startMinute, segment.endMinute);
     }
 
     private String createTimeRangeText(int startMinute, int endMinute) {
@@ -541,10 +553,21 @@ public class TripPage {
         return overlaps;
     }
 
+    private void refreshActivityOverlapIndex() {
+        overlappingActivityIds.clear();
+        if (trip == null) {
+            return;
+        }
+        for (Activity activity : findOverlappingActivities(trip.getActivities())) {
+            overlappingActivityIds.add(activity.getId());
+        }
+    }
+
     private void applyActivityFilter() {
         if (trip == null) {
             return;
         }
+        refreshActivityOverlapIndex();
         String selected = activityTypeFilter.getSelectionModel().getSelectedItem();
         Activity.Type filterType = null;
         if (selected != null && !"ALL".equals(selected)) {
@@ -552,6 +575,7 @@ public class TripPage {
         }
         List<Activity> filtered = ActivityFilter.byType(trip.getActivities(), filterType);
         activityObservableList.setAll(filtered);
+        activityListView.refresh();
     }
 
     private void refreshTotalCost() {
@@ -1086,15 +1110,6 @@ public class TripPage {
                 LocalDateTime end = LocalDateTime.of(endDatePicker.getValue(), parseTimeOrDefault(endTimeField.getText(), LocalTime.of(23, 59)));
                 if (start.isAfter(end)) {
                     throw new IllegalArgumentException("Start must not be after end");
-                }
-
-                for (Activity activity : trip.getActivities()) {
-                    if (activity == selectedActivity) {
-                        continue;
-                    }
-                    if (start.isBefore(activity.getEndDateTime()) && end.isAfter(activity.getStartDateTime())) {
-                        throw new IllegalArgumentException("Edited activity overlaps with: " + activity.getName());
-                    }
                 }
 
                 selectedActivity.setName(nameField.getText());

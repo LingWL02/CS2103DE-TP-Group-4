@@ -414,17 +414,6 @@ public class ActivityPage {
                     throw new IllegalArgumentException("Start must not be after end");
                 }
 
-                if (tripPage != null && tripPage.getTrip() != null) {
-                    for (Activity other : tripPage.getTrip().getActivities()) {
-                        if (other == activity) {
-                            continue;
-                        }
-                        if (start.isBefore(other.getEndDateTime()) && end.isAfter(other.getStartDateTime())) {
-                            throw new IllegalArgumentException("Edited activity overlaps with: " + other.getName());
-                        }
-                    }
-                }
-
                 activity.setName(nameField.getText());
                 activity.setStartDateTime(start);
                 activity.setEndDateTime(end);
