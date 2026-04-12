@@ -1,15 +1,16 @@
 package trip;
+import country.Country;
 import exceptions.ActivityNotFoundException;
 import exceptions.ExpenseNotFoundException;
 import exceptions.TimeIntervalConflictException;
 import expense.Expense;
 import expense.ExpenseManagable;
-import location.Location;
 import temporal.TimeInterval;
 import utilities.BaseEntity;
 import utilities.Copyable;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,25 +23,27 @@ import activity.Activity;
  */
 public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, Copyable<Trip> {
 
+    private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+
     private final List<Activity> activities = new ArrayList<>();
 
     private final List<Expense> expenses = new ArrayList<>();
 
-    private Location location;
+    private Country country;
 
     private LocalDateTime startDateTime;
 
     private LocalDateTime endDateTime;
 
-    public Trip(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-        this(id, name, startDateTime, endDateTime, null);
-    }
-
-    public Trip(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime, Location location) {
+    public Trip(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime, Country country) {
         super(id, name);
         setStartDateTime(startDateTime);
         setEndDateTime(endDateTime);
-        this.location = location;
+        setCountry(country);
+    }
+
+    public Trip(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        this(id, name, startDateTime, endDateTime, new Country(0, "Unspecified"));
     }
 
     public List<Activity> getActivities() {
@@ -51,12 +54,21 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         return Collections.unmodifiableList(expenses);
     }
 
-    public Location getLocation() {
-        return location;
+    public void setExpenses(List<Expense> expenses) {
+        this.expenses.clear();
+        if (expenses != null) {
+            for (Expense expense : expenses) {
+                this.expenses.add(Objects.requireNonNull(expense, "expense"));
+            }
+        }
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public Country getCountry() {
+        return country;
+    }
+
+    public void setCountry(Country country) {
+        this.country = Objects.requireNonNull(country, "country");
     }
 
     @Override
@@ -95,12 +107,6 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
 
     public void addActivity(Activity activity) throws TimeIntervalConflictException {
         Objects.requireNonNull(activity, "activity");
-        for (Activity existing : activities) {
-            if (activity.overlapsWith(existing)) {
-                throw new TimeIntervalConflictException(
-                        "Activity time conflict with existing activity: " + existing.getName());
-            }
-        }
         activities.add(activity);
     }
 
@@ -196,8 +202,9 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
 
     @Override
     public Trip copy() {
-        Trip copy = new Trip(getId(), getName(), startDateTime, endDateTime, location);
+        Trip copy = new Trip(getId(), getName(), startDateTime, endDateTime, country);
         copy.setDescription(getDescription());
+        copy.setPriority(getPriority());
         copy.setImage(getImage());
         for (Expense expense : expenses) {
             copy.addExpense(expense.copy());
@@ -250,8 +257,14 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
 
     @Override
     public String toString() {
-        return getName() + " (" + (getLocation() != null ? getLocation().getName() : "No Location") + ") " +
-                (getStartDateTime() != null ? getStartDateTime().toLocalDate() : "?") + " - " +
-                (getEndDateTime() != null ? getEndDateTime().toLocalDate() : "?");
+        return "Trip #" + getId() + ": " + getName()
+                + " | " + formatDateTime(getStartDateTime()) + " -> " + formatDateTime(getEndDateTime())
+            + " | Country: " + (getCountry() != null ? getCountry() : "No country")
+                + " | Activities: " + activities.size()
+                + " | Expenses: " + expenses.size();
+    }
+
+    private String formatDateTime(LocalDateTime dateTime) {
+        return dateTime != null ? dateTime.format(DATE_TIME_FORMAT) : "?";
     }
 }
