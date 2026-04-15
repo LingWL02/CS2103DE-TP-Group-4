@@ -29,6 +29,7 @@ import expense.Expense.Type;
 import javafx.scene.control.ListCell;
 import javafx.stage.Window;
 import storage.ImageAssetStore;
+import ui.control.MainWindowControl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +40,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+/**
+ * JavaFX controller for activity-level expense management.
+ *
+ * <p>The controller depends on {@link MainWindowControl} for shared navigation
+ * and lookup actions, keeping direct coupling to {@code MainWindow} low.</p>
+ */
 public class ActivityPage {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
@@ -67,7 +74,7 @@ public class ActivityPage {
     private ObservableList<Expense> expenseObservableList = FXCollections.observableArrayList();
     private TripPage tripPage;
     private trip.TripManager tripManager;
-    private MainWindow mainWindow;
+    private MainWindowControl mainWindowControl;
     private ExpenseRepository expenseRepository;
     private final ImageAssetStore imageAssetStore = new ImageAssetStore();
 
@@ -90,8 +97,13 @@ public class ActivityPage {
         this.tripManager = tripManager;
     }
 
-    public void setMainWindow(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    /**
+     * Injects the main-window control contract used for cross-page interactions.
+     *
+     * @param mainWindowControl top-level control contract
+     */
+    public void setMainWindowControl(MainWindowControl mainWindowControl) {
+        this.mainWindowControl = mainWindowControl;
     }
 
     public void setExpenseRepository(ExpenseRepository expenseRepository) {
@@ -212,8 +224,8 @@ public class ActivityPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to add expense: " + e.getMessage());
@@ -288,8 +300,8 @@ public class ActivityPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to edit expense: " + e.getMessage());
@@ -309,9 +321,9 @@ public class ActivityPage {
             if (tripManager != null) {
                 tripManager.saveToFile();
             }
-            if (mainWindow != null) {
-                mainWindow.cleanupExpenseIfOrphaned(selectedExpense.getId());
-                mainWindow.refreshHeaderActivitySummary();
+            if (mainWindowControl != null) {
+                mainWindowControl.cleanupExpenseIfOrphaned(selectedExpense.getId());
+                mainWindowControl.refreshHeaderActivitySummary();
             }
             expenseObservableList.setAll(activity.getExpenses());
         } catch (Exception e) {
@@ -343,9 +355,10 @@ public class ActivityPage {
         TextField endTimeField = new TextField(activity.getEndDateTime().toLocalTime().format(DateTimeFormatter.ofPattern("HH:mm")));
 
         ComboBox<location.Location> locationCombo = new ComboBox<>();
-        if (mainWindow != null) {
-            locationCombo.getItems().setAll(mainWindow.getAvailableLocations());
-            mainWindow.configureLocationComboForDelete(locationCombo, () -> locationCombo.getItems().setAll(mainWindow.getAvailableLocations()));
+        if (mainWindowControl != null) {
+            locationCombo.getItems().setAll(mainWindowControl.getAvailableLocations());
+            mainWindowControl.configureLocationComboForDelete(locationCombo,
+                () -> locationCombo.getItems().setAll(mainWindowControl.getAvailableLocations()));
         }
         locationCombo.setConverter(new javafx.util.StringConverter<>() {
             @Override
@@ -364,10 +377,10 @@ public class ActivityPage {
 
         Button newLocationButton = createAddButton("New...");
         newLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                location.Location created = mainWindow.promptAddLocation();
+            if (mainWindowControl != null) {
+                location.Location created = mainWindowControl.promptAddLocation();
                 if (created != null) {
-                    locationCombo.getItems().setAll(mainWindow.getAvailableLocations());
+                    locationCombo.getItems().setAll(mainWindowControl.getAvailableLocations());
                     locationCombo.getSelectionModel().select(created);
                 }
             }
@@ -375,10 +388,10 @@ public class ActivityPage {
 
         Button editLocationButton = createEditButton("Edit...");
         editLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                location.Location edited = mainWindow.promptEditLocation(locationCombo.getValue());
+            if (mainWindowControl != null) {
+                location.Location edited = mainWindowControl.promptEditLocation(locationCombo.getValue());
                 if (edited != null) {
-                    locationCombo.getItems().setAll(mainWindow.getAvailableLocations());
+                    locationCombo.getItems().setAll(mainWindowControl.getAvailableLocations());
                     locationCombo.getSelectionModel().select(edited);
                 }
             }
@@ -386,8 +399,9 @@ public class ActivityPage {
 
         Button deleteLocationButton = createDeleteButton("Delete");
         deleteLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                mainWindow.deleteLocationFromUi(locationCombo.getValue(), () -> locationCombo.getItems().setAll(mainWindow.getAvailableLocations()));
+            if (mainWindowControl != null) {
+                mainWindowControl.deleteLocationFromUi(locationCombo.getValue(),
+                    () -> locationCombo.getItems().setAll(mainWindowControl.getAvailableLocations()));
             }
         });
 
@@ -427,8 +441,8 @@ public class ActivityPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to edit activity: " + e.getMessage());
