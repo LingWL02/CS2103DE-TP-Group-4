@@ -35,6 +35,7 @@ import javafx.stage.Window;
 import javafx.util.StringConverter;
 import storage.ImageAssetStore;
 import trip.Trip;
+import ui.control.MainWindowControl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,6 +53,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * JavaFX controller for the trip details page.
+ *
+ * <p>The page depends on {@link MainWindowControl} rather than directly on
+ * {@code MainWindow} to reduce cross-controller coupling.</p>
+ */
 public class TripPage {
     private static final double MIN_DAY_TIMELINE_WIDTH = 220.0;
     private static final double BLOCK_HEIGHT = 42.0;
@@ -105,7 +112,7 @@ public class TripPage {
     private final Set<Integer> overlappingActivityIds = new HashSet<>();
     private final ImageAssetStore imageAssetStore = new ImageAssetStore();
     private ExpenseRepository expenseRepository;
-    private MainWindow mainWindow;
+    private MainWindowControl mainWindowControl;
     private trip.TripManager tripManager;
 
     public void setTrip(Trip trip) {
@@ -122,8 +129,13 @@ public class TripPage {
         refreshTotalCost();
     }
 
-    public void setMainWindow(MainWindow mainWindow) {
-        this.mainWindow = mainWindow;
+    /**
+     * Injects the cross-page control contract used for navigation and shared actions.
+     *
+     * @param mainWindowControl top-level control contract
+     */
+    public void setMainWindowControl(MainWindowControl mainWindowControl) {
+        this.mainWindowControl = mainWindowControl;
     }
 
     public void setTripManager(trip.TripManager tripManager) {
@@ -260,8 +272,8 @@ public class TripPage {
         });
 
         backButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                mainWindow.showHomePage();
+            if (mainWindowControl != null) {
+                mainWindowControl.showHomePage();
             }
         });
 
@@ -306,8 +318,8 @@ public class TripPage {
 
         activityListView.setOnMouseClicked(event -> {
             Activity selected = activityListView.getSelectionModel().getSelectedItem();
-            if (selected != null && event.getClickCount() == 2 && mainWindow != null) {
-                mainWindow.showActivityPage(selected, this);
+            if (selected != null && event.getClickCount() == 2 && mainWindowControl != null) {
+                mainWindowControl.showActivityPage(selected, this);
             }
         });
     }
@@ -694,8 +706,8 @@ public class TripPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to add expense: " + e.getMessage());
@@ -776,8 +788,8 @@ public class TripPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to edit expense: " + e.getMessage());
@@ -801,14 +813,14 @@ public class TripPage {
             if (tripManager != null) {
                 tripManager.saveToFile();
             }
-            if (mainWindow != null) {
-                mainWindow.cleanupExpenseIfOrphaned(selectedExpense.getId());
+            if (mainWindowControl != null) {
+                mainWindowControl.cleanupExpenseIfOrphaned(selectedExpense.getId());
             }
 
             refreshExpenseList();
             refreshTotalCost();
-            if (mainWindow != null) {
-                mainWindow.refreshHeaderActivitySummary();
+            if (mainWindowControl != null) {
+                mainWindowControl.refreshHeaderActivitySummary();
             }
         } catch (Exception e) {
             showError("Failed to delete expense: " + e.getMessage());
@@ -844,10 +856,10 @@ public class TripPage {
     }
 
     private void handleEditTrip() {
-        if (trip == null || mainWindow == null) {
+        if (trip == null || mainWindowControl == null) {
             return;
         }
-        boolean updated = mainWindow.promptEditTrip(trip);
+        boolean updated = mainWindowControl.promptEditTrip(trip);
         if (updated) {
             setTrip(trip);
         }
@@ -874,12 +886,12 @@ public class TripPage {
         TextField endTimeField = new TextField("23:59");
         ComboBox<location.Location> locationCombo = new ComboBox<>();
         Runnable refreshLocations = () -> {
-            if (mainWindow == null) {
+            if (mainWindowControl == null) {
                 return;
             }
             location.Location selectedLocation = locationCombo.getValue();
             List<location.Location> refreshed = new ArrayList<>();
-            for (location.Location location : mainWindow.getAvailableLocations()) {
+            for (location.Location location : mainWindowControl.getAvailableLocations()) {
                 if (trip.getCountry() == null
                         || location.getCountry() == null
                         || location.getCountry().getId() == trip.getCountry().getId()) {
@@ -895,9 +907,9 @@ public class TripPage {
                 locationCombo.getSelectionModel().selectFirst();
             }
         };
-        if (mainWindow != null) {
+        if (mainWindowControl != null) {
             refreshLocations.run();
-            mainWindow.configureLocationComboForDelete(locationCombo, refreshLocations);
+            mainWindowControl.configureLocationComboForDelete(locationCombo, refreshLocations);
         }
         locationCombo.setConverter(new StringConverter<>() {
             @Override
@@ -915,8 +927,8 @@ public class TripPage {
         }
         Button newLocationButton = createAddButton("New...");
         newLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                location.Location location = mainWindow.promptAddLocation();
+            if (mainWindowControl != null) {
+                location.Location location = mainWindowControl.promptAddLocation();
                 if (location != null) {
                     refreshLocations.run();
                     locationCombo.getSelectionModel().select(location);
@@ -925,8 +937,8 @@ public class TripPage {
         });
         Button editLocationButton = createEditButton("Edit...");
         editLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                location.Location edited = mainWindow.promptEditLocation(locationCombo.getValue());
+            if (mainWindowControl != null) {
+                location.Location edited = mainWindowControl.promptEditLocation(locationCombo.getValue());
                 if (edited != null) {
                     refreshLocations.run();
                     locationCombo.getSelectionModel().select(edited);
@@ -935,8 +947,8 @@ public class TripPage {
         });
         Button deleteLocationButton = createDeleteButton("Delete");
         deleteLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                mainWindow.deleteLocationFromUi(locationCombo.getValue(), refreshLocations);
+            if (mainWindowControl != null) {
+                mainWindowControl.deleteLocationFromUi(locationCombo.getValue(), refreshLocations);
             }
         });
         HBox locationRow = createResponsiveActionRow(locationCombo, newLocationButton, editLocationButton,
@@ -1004,8 +1016,8 @@ public class TripPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to add activity: " + e.getMessage());
@@ -1039,12 +1051,12 @@ public class TripPage {
 
         ComboBox<location.Location> locationCombo = new ComboBox<>();
         Runnable refreshLocations = () -> {
-            if (mainWindow == null) {
+            if (mainWindowControl == null) {
                 return;
             }
             location.Location selectedLocation = locationCombo.getValue();
             List<location.Location> refreshed = new ArrayList<>();
-            for (location.Location location : mainWindow.getAvailableLocations()) {
+            for (location.Location location : mainWindowControl.getAvailableLocations()) {
                 if (trip.getCountry() == null
                         || location.getCountry() == null
                         || location.getCountry().getId() == trip.getCountry().getId()) {
@@ -1060,9 +1072,9 @@ public class TripPage {
                 locationCombo.getSelectionModel().selectFirst();
             }
         };
-        if (mainWindow != null) {
+        if (mainWindowControl != null) {
             refreshLocations.run();
-            mainWindow.configureLocationComboForDelete(locationCombo, refreshLocations);
+            mainWindowControl.configureLocationComboForDelete(locationCombo, refreshLocations);
         }
         locationCombo.setConverter(new StringConverter<>() {
             @Override
@@ -1081,8 +1093,8 @@ public class TripPage {
 
         Button newLocationButton = createAddButton("New...");
         newLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                location.Location location = mainWindow.promptAddLocation();
+            if (mainWindowControl != null) {
+                location.Location location = mainWindowControl.promptAddLocation();
                 if (location != null) {
                     refreshLocations.run();
                     locationCombo.getSelectionModel().select(location);
@@ -1091,8 +1103,8 @@ public class TripPage {
         });
         Button editLocationButton = createEditButton("Edit...");
         editLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                location.Location edited = mainWindow.promptEditLocation(locationCombo.getValue());
+            if (mainWindowControl != null) {
+                location.Location edited = mainWindowControl.promptEditLocation(locationCombo.getValue());
                 if (edited != null) {
                     refreshLocations.run();
                     locationCombo.getSelectionModel().select(edited);
@@ -1101,8 +1113,8 @@ public class TripPage {
         });
         Button deleteLocationButton = createDeleteButton("Delete");
         deleteLocationButton.setOnAction(e -> {
-            if (mainWindow != null) {
-                mainWindow.deleteLocationFromUi(locationCombo.getValue(), refreshLocations);
+            if (mainWindowControl != null) {
+                mainWindowControl.deleteLocationFromUi(locationCombo.getValue(), refreshLocations);
             }
         });
 
@@ -1152,8 +1164,8 @@ public class TripPage {
                 if (tripManager != null) {
                     tripManager.saveToFile();
                 }
-                if (mainWindow != null) {
-                    mainWindow.refreshHeaderActivitySummary();
+                if (mainWindowControl != null) {
+                    mainWindowControl.refreshHeaderActivitySummary();
                 }
             } catch (Exception e) {
                 showError("Failed to edit activity: " + e.getMessage());
@@ -1213,8 +1225,8 @@ public class TripPage {
     }
 
     public void showTripPage() {
-        if (mainWindow != null && trip != null) {
-            mainWindow.showTripPage(trip);
+        if (mainWindowControl != null && trip != null) {
+            mainWindowControl.showTripPage(trip);
         }
     }
 
