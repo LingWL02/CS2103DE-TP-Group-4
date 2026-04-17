@@ -39,59 +39,9 @@ The project follows a layered monolith:
 
 ### 2.2 Architecture Diagram
 
-```mermaid
-flowchart LR
-		subgraph UI[UI Layer]
-				MW[MainWindow]
-				TP[TripPage]
-				AP[ActivityPage]
-		end
-
-		subgraph CTRL[Control Layer]
-				TC[MainWindowTripCrudController]
-				LC[MainWindowLookupCrudController]
-				RI[MainWindowReferenceInspector]
-				DS[MainWindowDialogSupport]
-				HS[HomeActivitySnapshotController]
-		end
-
-		subgraph CORE[Service and Repository Layer]
-				TM[TripManager]
-				CR[CountryRepository]
-				LR[LocationRepository]
-				ER[ExpenseRepository]
-		end
-
-		subgraph DOMAIN[Domain Layer]
-				T[Trip]
-				A[Activity]
-				E[Expense]
-				C[Country]
-				L[Location]
-		end
-
-		subgraph STORE[Storage Layer]
-				JS[JsonStorage]
-				CS[CountryStorage]
-				LS[LocationStorage]
-				ES[ExpenseStorage]
-				IAS[ImageAssetStore]
-		end
-
-		subgraph FILES[Local Files]
-				F1[data/trips.json]
-				F2[data/countries.json]
-				F3[data/locations.json]
-				F4[data/expenses.json]
-				F5[data/images/*]
-		end
-
-		UI --> CTRL --> CORE
-		CORE --> DOMAIN
-		CORE --> STORE
-		STORE --> FILES
-		STORE --> IAS --> F5
-```
+<p align="center">
+	<img src="sdd_diagrams/architecture_diagram.svg" alt="Architecture Diagram" width="62%" />
+</p>
 
 ### 2.3 Architectural Rationale
 Why this shape:
@@ -152,56 +102,9 @@ Why this shape:
 
 ### 3.2 Data Relationship Diagram
 
-```mermaid
-classDiagram
-		class Trip {
-			+int id
-			+String name
-			+LocalDateTime startDateTime
-			+LocalDateTime endDateTime
-			+int countryId
-			+List~Activity~ activities
-			+List~int~ expenseIds
-		}
-
-		class Activity {
-			+int id
-			+String name
-			+LocalDateTime startDateTime
-			+LocalDateTime endDateTime
-			+List~Type~ types
-			+int locationId
-			+List~int~ expenseIds
-		}
-
-		class Expense {
-			+int id
-			+String name
-			+float cost
-			+Currency currency
-			+Type type
-		}
-
-		class Country {
-			+int id
-			+String name
-		}
-
-		class Location {
-			+int id
-			+String name
-			+int countryId
-			+Double latitude
-			+Double longitude
-		}
-
-		Trip "1" --> "many" Activity
-		Trip "many" --> "1" Country
-		Activity "many" --> "1" Location
-		Trip "many" --> "many" Expense
-		Activity "many" --> "many" Expense
-		Location "many" --> "1" Country
-```
+<p align="center">
+	<img src="sdd_diagrams/data_relationship_diagram.svg" alt="Data Relationship Diagram" width="58%" />
+</p>
 
 ### 3.3 Storage Schemas (Definitive)
 
@@ -338,75 +241,27 @@ Expected behavior:
 
 ### 5.1 Sequence Diagram: Startup Load and Reference Resolution
 
-```mermaid
-sequenceDiagram
-		participant UI as MainWindow
-		participant CR as CountryRepository
-		participant LR as LocationRepository
-		participant ER as ExpenseRepository
-		participant TM as TripManager
-		participant JS as JsonStorage
-
-		UI->>CR: load()
-		UI->>LR: load()
-		UI->>ER: load()
-		UI->>TM: loadFromFile(CR, LR, ER)
-		TM->>JS: load()
-		JS-->>TM: List<Trip>
-		TM->>TM: resolveReferences(country/location/expense)
-		UI->>TM: getTrips()
-		UI->>UI: render home + activity snapshot
-```
+<p align="center">
+	<img src="sdd_diagrams/sequence_diagram_5p1.svg" alt="Sequence Diagram 5.1 Startup Load and Reference Resolution" width="58%" />
+</p>
 
 ### 5.2 Sequence Diagram: Create Trip
 
-```mermaid
-sequenceDiagram
-		participant User
-		participant UI as MainWindowTripCrudController
-		participant TM as TripManager
-		participant JS as JsonStorage
-
-		User->>UI: submit trip form
-		UI->>TM: addTrip(trip)
-		TM->>TM: validate uniqueness + overlap
-		alt conflict
-				TM-->>UI: TimeIntervalConflictException
-				UI-->>User: show validation message
-		else success
-				UI->>TM: saveToFile()
-				TM->>JS: save(trips)
-				JS-->>TM: success
-				UI-->>User: refresh trip list
-		end
-```
+<p align="center">
+	<img src="sdd_diagrams/sequence_diagram_5p2.svg" alt="Sequence Diagram 5.2 Create Trip" width="58%" />
+</p>
 
 ### 5.3 State Diagram: Trip Lifecycle
 
-```mermaid
-stateDiagram-v2
-		[*] --> Draft
-		Draft --> Active: valid create
-		Draft --> Draft: validation failure
-		Active --> Active: edit without conflict
-		Active --> ConflictBlocked: overlap detected
-		ConflictBlocked --> Active: resolve and retry
-		Active --> Deleted: delete confirmed
-		Deleted --> [*]
-```
+<p align="center">
+	<img src="sdd_diagrams/state_diagram_5p3.svg" alt="State Diagram 5.3 Trip Lifecycle" width="46%" />
+</p>
 
 ### 5.4 State Diagram: Expense Reference Lifecycle
 
-```mermaid
-stateDiagram-v2
-		[*] --> Created
-		Created --> Referenced: attached to trip or activity
-		Referenced --> Persisted: save success
-		Persisted --> OrphanCandidate: parent unlink/delete
-		OrphanCandidate --> Persisted: still referenced
-		OrphanCandidate --> Deleted: no references found
-		Deleted --> [*]
-```
+<p align="center">
+	<img src="sdd_diagrams/state_diagram_5p4.svg" alt="State Diagram 5.4 Expense Reference Lifecycle" width="46%" />
+</p>
 
 ### 5.5 Algorithm Notes
 
