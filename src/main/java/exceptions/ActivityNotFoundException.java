@@ -8,7 +8,9 @@ package exceptions;
  */
 public class ActivityNotFoundException extends Exception {
     /**
-     * Creates a new instance.
+     * Creates an exception describing a missing activity lookup.
+     *
+     * @param message human-readable failure detail
      */
     public ActivityNotFoundException(String message) {
         super(message);

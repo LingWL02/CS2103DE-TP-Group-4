@@ -31,14 +31,17 @@ public class CountryRepository {
     private int nextId = 1;
 
     /**
-     * Creates a new instance.
+     * Creates a repository backed by default storage components.
      */
     public CountryRepository() {
         this(new CountryStorage(), new ImageAssetStore());
     }
 
     /**
-     * Creates a new instance.
+     * Creates a repository with explicit storage dependencies.
+     *
+     * @param storage country storage gateway
+     * @param imageAssetStore image import/normalization helper
      */
     public CountryRepository(CountryStorage storage, ImageAssetStore imageAssetStore) {
         this.storage = storage;
@@ -46,7 +49,9 @@ public class CountryRepository {
     }
 
     /**
-     * Loads data into this component.
+     * Loads countries from storage and rebuilds in-memory identity indexes.
+     *
+     * @throws IOException if storage read or normalization persistence fails
      */
     public void load() throws IOException {
         countries.clear();
@@ -72,21 +77,30 @@ public class CountryRepository {
     }
 
     /**
-     * Saves data from this component.
+     * Persists all current countries to storage.
+     *
+     * @throws IOException if writing fails
      */
     public void save() throws IOException {
         storage.save(countries);
     }
 
     /**
-     * Returns the Countries value.
+     * Returns an immutable snapshot of all countries.
+     *
+     * @return all known countries
      */
     public List<Country> getCountries() {
         return Collections.unmodifiableList(countries);
     }
 
     /**
-     * Adds a new item to this object.
+     * Creates and registers a new country.
+     *
+     * @param name required country name
+     * @param continent optional continent label
+     * @param imageSourcePath optional source image path to import
+     * @return created country
      */
     public Country addCountry(String name, String continent, String imageSourcePath) {
         String normalizedName = normalizeRequired(name, "country name");
@@ -104,7 +118,13 @@ public class CountryRepository {
     }
 
     /**
-     * Updates existing data in this component.
+     * Updates an existing country.
+     *
+     * @param countryId target country id
+     * @param name required country name
+     * @param continent optional continent label
+     * @param imageSourcePath optional source image path to import
+     * @return updated country
      */
     public Country updateCountry(int countryId, String name, String continent, String imageSourcePath) {
         Country country = countriesById.get(countryId);
@@ -139,14 +159,20 @@ public class CountryRepository {
     }
 
     /**
-     * Finds and returns a matching item.
+     * Finds a country by identifier.
+     *
+     * @param countryId country id
+     * @return matching country, or {@code null}
      */
     public Country findById(int countryId) {
         return countriesById.get(countryId);
     }
 
     /**
-     * Finds and returns a matching item.
+     * Finds a country by name, case-insensitively.
+     *
+     * @param name country name
+     * @return matching country, or {@code null}
      */
     public Country findByName(String name) {
         String normalized = normalizeOptional(name);
@@ -162,7 +188,9 @@ public class CountryRepository {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a country by identifier.
+     *
+     * @param countryId country id
      */
     public void deleteCountryById(int countryId) {
         Country country = countriesById.get(countryId);

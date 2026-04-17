@@ -79,7 +79,9 @@ public class ActivityPage {
     private final ImageAssetStore imageAssetStore = new ImageAssetStore();
 
     /**
-     * Updates the Activity value.
+     * Binds this page to an activity and refreshes the displayed fields.
+     *
+     * @param activity activity to display
      */
     public void setActivity(Activity activity) {
         this.activity = activity;
@@ -93,14 +95,18 @@ public class ActivityPage {
     }
 
     /**
-     * Updates the TripPage value.
+     * Injects the trip page used for back-navigation.
+     *
+     * @param tripPage parent trip page
      */
     public void setTripPage(TripPage tripPage) {
         this.tripPage = tripPage;
     }
 
     /**
-     * Updates the TripManager value.
+     * Injects the trip manager used for persistence after edits.
+     *
+     * @param tripManager trip manager
      */
     public void setTripManager(trip.TripManager tripManager) {
         this.tripManager = tripManager;
@@ -116,7 +122,9 @@ public class ActivityPage {
     }
 
     /**
-     * Updates the ExpenseRepository value.
+     * Injects the expense repository used by expense dialogs.
+     *
+     * @param expenseRepository expense repository
      */
     public void setExpenseRepository(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
@@ -382,7 +390,7 @@ public class ActivityPage {
             }
 
             /**
-             * Performs the fromString operation.
+             * Parsing is not required for this display-only converter.
              */
             @Override
             public location.Location fromString(String string) {
@@ -600,7 +608,9 @@ public class ActivityPage {
     }
 
     /**
-     * Returns the TripPage value.
+     * Returns the bound parent trip page.
+     *
+     * @return parent trip page, or {@code null}
      */
     public TripPage getTripPage() {
         return tripPage;

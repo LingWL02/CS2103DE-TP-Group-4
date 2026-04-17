@@ -27,7 +27,7 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
     /**
-     * Represents the enum Type.
+     * Enumerates supported activity categories.
      */
     public enum Type {
         SIGHTSEEING,
@@ -48,14 +48,25 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     private LocalDateTime endDateTime;
 
     /**
-     * Creates a new instance.
+     * Creates an activity without an explicit location.
+     *
+     * @param id activity identifier
+     * @param name activity display name
+     * @param startDateTime activity start time
+     * @param endDateTime activity end time
      */
     public Activity(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this(id, name, startDateTime, endDateTime, null);
     }
 
     /**
-     * Creates a new instance.
+     * Creates an activity with all primary fields.
+     *
+     * @param id activity identifier
+     * @param name activity display name
+     * @param startDateTime activity start time
+     * @param endDateTime activity end time
+     * @param location activity location, or {@code null}
      */
     public Activity(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime, Location location) {
         super(id, name);
@@ -65,14 +76,18 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Returns the Types value.
+     * Returns activity categories.
+     *
+     * @return immutable activity-type list
      */
     public List<Type> getTypes() {
         return Collections.unmodifiableList(types);
     }
 
     /**
-     * Updates the Types value.
+     * Replaces all activity categories.
+     *
+     * @param types replacement category list, or {@code null} to clear
      */
     public void setTypes(List<Type> types) {
         this.types.clear();
@@ -82,21 +97,27 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Adds a new item to this object.
+     * Adds a category to this activity.
+     *
+     * @param type category to add
      */
     public void addType(Type type) {
         this.types.add(Objects.requireNonNull(type, "type"));
     }
 
     /**
-     * Returns the Expenses value.
+     * Returns expenses directly attached to this activity.
+     *
+     * @return immutable expense list
      */
     public List<Expense> getExpenses() {
         return Collections.unmodifiableList(expenses);
     }
 
     /**
-     * Updates the Expenses value.
+     * Replaces expenses directly attached to this activity.
+     *
+     * @param expenses replacement expenses, or {@code null} to clear
      */
     public void setExpenses(List<Expense> expenses) {
         this.expenses.clear();
@@ -108,21 +129,27 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Returns the Location value.
+     * Returns the assigned location.
+     *
+     * @return location, or {@code null}
      */
     public Location getLocation() {
         return location;
     }
 
     /**
-     * Updates the Location value.
+     * Updates the assigned location.
+     *
+     * @param location location, or {@code null}
      */
     public void setLocation(Location location) {
         this.location = location;
     }
 
     /**
-     * Returns the StartDateTime value.
+     * Returns the activity start timestamp.
+     *
+     * @return start timestamp
      */
     @Override
     public LocalDateTime getStartDateTime() {
@@ -130,7 +157,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Updates the StartDateTime value.
+     * Updates the activity start timestamp.
+     *
+     * @param startDateTime start timestamp
      */
     @Override
     public void setStartDateTime(LocalDateTime startDateTime) {
@@ -142,7 +171,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Returns the EndDateTime value.
+     * Returns the activity end timestamp.
+     *
+     * @return end timestamp
      */
     @Override
     public LocalDateTime getEndDateTime() {
@@ -150,7 +181,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Updates the EndDateTime value.
+     * Updates the activity end timestamp.
+     *
+     * @param endDateTime end timestamp
      */
     @Override
     public void setEndDateTime(LocalDateTime endDateTime) {
@@ -162,7 +195,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Adds a new item to this object.
+     * Adds an expense to this activity.
+     *
+     * @param expense expense to add
      */
     @Override
     public void addExpense(Expense expense) {
@@ -170,7 +205,10 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes an expense by identifier.
+     *
+     * @param id expense id
+     * @throws ExpenseNotFoundException if no matching expense exists
      */
     @Override
     public void deleteExpenseById(int id) throws ExpenseNotFoundException {
@@ -179,7 +217,10 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes an expense by name.
+     *
+     * @param name expense name
+     * @throws ExpenseNotFoundException if no matching expense exists
      */
     @Override
     public void deleteExpenseByName(String name) throws ExpenseNotFoundException {
@@ -188,7 +229,11 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Returns the ExpenseById value.
+     * Returns an expense by identifier.
+     *
+     * @param id expense id
+     * @return matching expense
+     * @throws ExpenseNotFoundException if no matching expense exists
      */
     @Override
     public Expense getExpenseById(int id) throws ExpenseNotFoundException {
@@ -196,7 +241,11 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Returns the ExpenseByName value.
+     * Returns an expense by name.
+     *
+     * @param name expense name
+     * @return matching expense
+     * @throws ExpenseNotFoundException if no matching expense exists
      */
     @Override
     public Expense getExpenseByName(String name) throws ExpenseNotFoundException {
@@ -204,7 +253,10 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Returns the TotalCost value.
+     * Returns total expense amount for one currency.
+     *
+     * @param currency currency to aggregate
+     * @return total expense amount in the given currency
      */
     @Override
     public float getTotalCost(Expense.Currency currency) {
@@ -219,7 +271,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
     }
 
     /**
-     * Creates and returns a copy of this object.
+     * Creates a deep copy of this activity and its direct expenses.
+     *
+     * @return copied activity
      */
     @Override
     public Activity copy() {

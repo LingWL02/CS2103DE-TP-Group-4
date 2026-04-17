@@ -31,14 +31,16 @@ public class ExpenseStorage {
     private final Path dataFilePath;
 
     /**
-     * Creates a new instance.
+     * Creates storage bound to the default expense data file.
      */
     public ExpenseStorage() {
         this(Paths.get(DATA_DIRECTORY, DATA_FILE));
     }
 
     /**
-     * Creates a new instance.
+     * Creates storage bound to a specific data file path.
+     *
+     * @param dataFilePath target JSON data path
      */
     public ExpenseStorage(Path dataFilePath) {
         this.dataFilePath = dataFilePath;
@@ -46,7 +48,10 @@ public class ExpenseStorage {
     }
 
     /**
-     * Saves data from this component.
+     * Persists expenses to the configured JSON file.
+     *
+     * @param expenses expenses to persist
+     * @throws IOException if writing fails
      */
     public void save(List<Expense> expenses) throws IOException {
         Path directory = dataFilePath.getParent();
@@ -59,7 +64,10 @@ public class ExpenseStorage {
     }
 
     /**
-     * Loads data into this component.
+     * Loads expenses from the configured JSON file.
+     *
+     * @return loaded expenses, or an empty list when no data is present
+     * @throws IOException if reading fails
      */
     public List<Expense> load() throws IOException {
         if (!Files.exists(dataFilePath)) {

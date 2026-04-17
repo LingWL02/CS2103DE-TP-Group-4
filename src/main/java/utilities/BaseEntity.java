@@ -37,14 +37,18 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Returns the Id value.
+     * Returns the stable entity identifier.
+     *
+     * @return non-negative entity id
      */
     public int getId() {
         return id;
     }
 
     /**
-     * Updates the Id value.
+     * Sets the stable entity identifier.
+     *
+     * @param id non-negative entity id
      */
     public void setId(int id) {
         if (id < 0) {
@@ -54,14 +58,18 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Returns the Name value.
+     * Returns the display name.
+     *
+     * @return non-blank entity name
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Updates the Name value.
+     * Sets the display name.
+     *
+     * @param name non-blank entity name
      */
     public void setName(String name) {
         String trimmed = Objects.requireNonNull(name, "name").trim();
@@ -72,28 +80,36 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Returns the Description value.
+     * Returns the optional free-text description.
+     *
+     * @return description text, or {@code null}
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Updates the Description value.
+     * Sets the optional free-text description.
+     *
+     * @param description description text, or {@code null}
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * Returns the Priority value.
+     * Returns the priority score used for sorting and display.
+     *
+     * @return non-negative priority score
      */
     public int getPriority() {
         return priority;
     }
 
     /**
-     * Updates the Priority value.
+     * Sets the priority score used for sorting and display.
+     *
+     * @param priority non-negative priority score
      */
     public void setPriority(int priority) {
         if (priority < 0) {
@@ -103,14 +119,18 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Returns the Image value.
+     * Returns the in-memory image object.
+     *
+     * @return runtime image value, or {@code null}
      */
     public BufferedImage getImage() {
         return image;
     }
 
     /**
-     * Updates the Image value.
+     * Sets the in-memory image object.
+     *
+     * @param image runtime image value, or {@code null}
      */
     public void setImage(BufferedImage image) {
         this.image = image;

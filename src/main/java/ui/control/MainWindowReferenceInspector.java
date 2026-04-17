@@ -21,7 +21,11 @@ public final class MainWindowReferenceInspector {
     }
 
     /**
-     * Finds and returns a matching item.
+     * Finds trips that currently reference a country.
+     *
+     * @param tripManager trip manager to inspect
+     * @param countryId country id to search for
+     * @return human-readable trip reference labels
      */
     public static List<String> findCountryReferences(TripManager tripManager, int countryId) {
         List<String> references = new ArrayList<>();
@@ -34,7 +38,11 @@ public final class MainWindowReferenceInspector {
     }
 
     /**
-     * Finds and returns a matching item.
+     * Finds activities that currently reference a location.
+     *
+     * @param tripManager trip manager to inspect
+     * @param locationId location id to search for
+     * @return human-readable activity reference labels
      */
     public static List<String> findLocationReferences(TripManager tripManager, int locationId) {
         List<String> references = new ArrayList<>();

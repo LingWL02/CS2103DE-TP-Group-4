@@ -39,14 +39,16 @@ public class LocationStorage {
     private final ImageAssetStore imageAssetStore;
 
     /**
-     * Creates a new instance.
+     * Creates storage bound to the default location data file.
      */
     public LocationStorage() {
         this(Paths.get(DATA_DIRECTORY, DATA_FILE));
     }
 
     /**
-     * Creates a new instance.
+     * Creates storage bound to a specific data file path.
+     *
+     * @param dataFilePath target JSON data path
      */
     public LocationStorage(Path dataFilePath) {
         this.dataFilePath = dataFilePath;
@@ -59,7 +61,10 @@ public class LocationStorage {
     }
 
     /**
-     * Saves data from this component.
+     * Persists locations to the configured JSON file.
+     *
+     * @param locations locations to persist
+     * @throws IOException if writing fails
      */
     public void save(List<Location> locations) throws IOException {
         Path directory = dataFilePath.getParent();
@@ -72,7 +77,10 @@ public class LocationStorage {
     }
 
     /**
-     * Loads data into this component.
+     * Loads locations from the configured JSON file.
+     *
+     * @return loaded locations, or an empty list when no data is present
+     * @throws IOException if reading fails
      */
     public List<Location> load() throws IOException {
         if (!Files.exists(dataFilePath)) {
@@ -89,11 +97,11 @@ public class LocationStorage {
     }
 
     /**
-     * Represents the class LocationSerializer.
+     * Serializes {@link Location} into JSON with country references.
      */
     private class LocationSerializer implements JsonSerializer<Location> {
         /**
-         * Performs the serialize operation.
+         * Converts a location to its JSON representation.
          */
         @Override
         public JsonElement serialize(Location src, Type typeOfSrc, JsonSerializationContext context) {
@@ -122,11 +130,11 @@ public class LocationStorage {
     }
 
     /**
-     * Represents the class LocationDeserializer.
+     * Deserializes {@link Location} from JSON with country fallback support.
      */
     private class LocationDeserializer implements JsonDeserializer<Location> {
         /**
-         * Performs the deserialize operation.
+         * Converts JSON into a location instance.
          */
         @Override
         public Location deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)

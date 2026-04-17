@@ -8,7 +8,9 @@ package exceptions;
  */
 public class TripNotFoundException extends Exception {
     /**
-     * Creates a new instance.
+     * Creates an exception describing a missing trip lookup.
+     *
+     * @param message human-readable failure detail
      */
     public TripNotFoundException(String message) {
         super(message);

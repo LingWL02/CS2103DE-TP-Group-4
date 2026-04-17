@@ -57,7 +57,7 @@ public class MainWindow implements MainWindowControl {
         .thenComparing(Trip::getEndDateTime);
 
     /**
-     * Represents the enum PageContext.
+     * Identifies the active top-level page context for contextual help.
      */
     private enum PageContext {
         HOME,
@@ -97,7 +97,7 @@ public class MainWindow implements MainWindowControl {
     private PageContext currentPageContext = PageContext.HOME;
 
     /**
-     * Performs the initialize operation.
+     * Initializes repositories, controller collaborators, and home-page bindings.
      */
     @FXML
     public void initialize() {
@@ -140,7 +140,7 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Shows the requested UI view.
+     * Displays the home page with trip list and summary panels.
      */
     @Override
     public void showHomePage() {
@@ -208,7 +208,9 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Shows the requested UI view.
+     * Displays the trip page for a selected trip.
+     *
+     * @param trip trip to show
      */
     @Override
     public void showTripPage(Trip trip) {
@@ -237,7 +239,10 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Shows the requested UI view.
+     * Displays the activity page for a selected activity.
+     *
+     * @param activity activity to show
+     * @param tripPage calling trip page used for back-navigation
      */
     @Override
     public void showActivityPage(Activity activity, TripPage tripPage) {
@@ -258,14 +263,18 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Returns the AvailableCountries value.
+     * Returns all available countries from lookup storage.
+     *
+     * @return available countries
      */
     public List<Country> getAvailableCountries() {
         return lookupCrudController.getAvailableCountries();
     }
 
     /**
-     * Returns the AvailableLocations value.
+     * Returns all available locations from lookup storage.
+     *
+     * @return available locations
      */
     @Override
     public List<Location> getAvailableLocations() {
@@ -273,21 +282,28 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the add-country flow.
+     *
+     * @return created country, or {@code null} when cancelled
      */
     public Country promptAddCountry() {
         return lookupCrudController.promptAddCountry();
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the edit-country flow.
+     *
+     * @param country country to edit
+     * @return updated country, or {@code null} when cancelled
      */
     public Country promptEditCountry(Country country) {
         return lookupCrudController.promptEditCountry(country);
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the add-location flow.
+     *
+     * @return created location, or {@code null} when cancelled
      */
     @Override
     public Location promptAddLocation() {
@@ -295,7 +311,10 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the edit-location flow.
+     *
+     * @param location location to edit
+     * @return updated location, or {@code null} when cancelled
      */
     @Override
     public Location promptEditLocation(Location location) {
@@ -303,7 +322,10 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the edit-trip flow.
+     *
+     * @param trip trip to edit
+     * @return {@code true} when a save occurred
      */
     @Override
     public boolean promptEditTrip(Trip trip) {
@@ -311,21 +333,32 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a trip from UI and persistent stores.
+     *
+     * @param trip trip to delete
+     * @return {@code true} when deletion succeeds
      */
     public boolean deleteTripFromUi(Trip trip) {
         return tripCrudController.deleteTripFromUi(trip);
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a country from UI and persistent stores.
+     *
+     * @param country country to delete
+     * @param onDataChanged callback run after successful deletion
+     * @return {@code true} when deletion succeeds
      */
     public boolean deleteCountryFromUi(Country country, Runnable onDataChanged) {
         return lookupCrudController.deleteCountryFromUi(country, onDataChanged);
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a location from UI and persistent stores.
+     *
+     * @param location location to delete
+     * @param onDataChanged callback run after successful deletion
+     * @return {@code true} when deletion succeeds
      */
     @Override
     public boolean deleteLocationFromUi(Location location, Runnable onDataChanged) {
@@ -333,7 +366,9 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Performs the cleanupExpenseIfOrphaned operation.
+     * Removes an expense from repository when no longer referenced.
+     *
+     * @param expenseId expense identifier
      */
     @Override
     public void cleanupExpenseIfOrphaned(int expenseId) {
@@ -341,7 +376,10 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Configures the provided component.
+     * Adds delete actions to a location combo box.
+     *
+     * @param locationCombo combo box to configure
+     * @param onDataChanged callback run after successful deletion
      */
     @Override
     public void configureLocationComboForDelete(ComboBox<Location> locationCombo, Runnable onDataChanged) {
@@ -360,7 +398,7 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Shows the requested UI view.
+     * Shows contextual guidance for the trip page.
      */
     public void showTripGuide() {
         showGuideDialog("Trip Page Guide", "Trip page controls",
@@ -375,7 +413,7 @@ public class MainWindow implements MainWindowControl {
     }
 
     /**
-     * Shows the requested UI view.
+     * Shows contextual guidance for the activity page.
      */
     public void showActivityGuide() {
         showGuideDialog("Activity Page Guide", "Activity expense controls",

@@ -31,14 +31,23 @@ public class ImageAssetStore {
     );
 
     /**
-     * Performs the importImage operation.
+     * Imports an image file into the managed asset directory.
+     *
+     * @param sourcePath source image path
+     * @param keyPrefix logical prefix used in generated filenames
+     * @return normalized stored image path, or {@code null} when import is not possible
      */
     public String importImage(String sourcePath, String keyPrefix) {
         return importImage(sourcePath, keyPrefix, null);
     }
 
     /**
-     * Performs the importImage operation.
+     * Imports an image file into the managed asset directory.
+     *
+     * @param sourcePath source image path
+     * @param keyPrefix logical prefix used in generated filenames
+     * @param semanticName optional semantic name used in generated filenames
+     * @return normalized stored image path, or {@code null} when import is not possible
      */
     public String importImage(String sourcePath, String keyPrefix, String semanticName) {
         if (sourcePath == null || sourcePath.isBlank()) {
@@ -79,7 +88,10 @@ public class ImageAssetStore {
     }
 
     /**
-     * Performs the normalizeImagePath operation.
+     * Normalizes image paths into supported canonical forms.
+     *
+     * @param imagePath raw image path
+     * @return normalized image path, or {@code null} when no usable value exists
      */
     public String normalizeImagePath(String imagePath) {
         if (imagePath == null) {

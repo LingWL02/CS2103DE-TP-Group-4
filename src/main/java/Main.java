@@ -12,7 +12,9 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
     /**
-     * Performs the start operation.
+     * Initializes and shows the primary application window.
+     *
+     * @param stage primary JavaFX stage provided by the runtime
      */
     @Override
     public void start(Stage stage) {

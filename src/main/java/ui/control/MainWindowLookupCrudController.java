@@ -46,7 +46,16 @@ public class MainWindowLookupCrudController {
     private final BiConsumer<String, String> infoSink;
 
     /**
-     * Creates a new instance.
+         * Creates a lookup CRUD coordinator for countries and locations.
+         *
+         * @param rootPane main window root pane used to resolve dialog owner
+         * @param tripManager trip manager used for reference checks
+         * @param countryRepository country repository
+         * @param locationRepository location repository
+         * @param expenseRepository expense repository
+         * @param refreshHeaderAction callback to refresh header summary UI
+         * @param errorSink callback for surfacing error messages
+         * @param infoSink callback for surfacing informational messages
      */
     public MainWindowLookupCrudController(
             BorderPane rootPane,
@@ -68,21 +77,27 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Returns the AvailableCountries value.
+     * Returns all available countries.
+     *
+     * @return countries from repository
      */
     public List<Country> getAvailableCountries() {
         return countryRepository.getCountries();
     }
 
     /**
-     * Returns the AvailableLocations value.
+     * Returns all available locations.
+     *
+     * @return locations from repository
      */
     public List<Location> getAvailableLocations() {
         return locationRepository.getLocations();
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the add-country dialog.
+     *
+     * @return created country, or {@code null} when cancelled
      */
     public Country promptAddCountry() {
         Country country = openAddCountryDialog(getOwnerWindow());
@@ -93,7 +108,10 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the edit-country dialog.
+     *
+     * @param country country to edit
+     * @return updated country, or {@code null} when cancelled
      */
     public Country promptEditCountry(Country country) {
         if (country == null) {
@@ -108,7 +126,9 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the add-location dialog.
+     *
+     * @return created location, or {@code null} when cancelled
      */
     public Location promptAddLocation() {
         Location location = openAddLocationDialog(getOwnerWindow());
@@ -119,7 +139,10 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the edit-location dialog.
+     *
+     * @param location location to edit
+     * @return updated location, or {@code null} when cancelled
      */
     public Location promptEditLocation(Location location) {
         if (location == null) {
@@ -134,7 +157,11 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a country when no dependent references block the operation.
+     *
+     * @param country country to delete
+     * @param onDataChanged callback run after successful deletion
+     * @return {@code true} when deletion succeeds
      */
     public boolean deleteCountryFromUi(Country country, Runnable onDataChanged) {
         if (country == null) {
@@ -145,7 +172,11 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a location when no dependent references block the operation.
+     *
+     * @param location location to delete
+     * @param onDataChanged callback run after successful deletion
+     * @return {@code true} when deletion succeeds
      */
     public boolean deleteLocationFromUi(Location location, Runnable onDataChanged) {
         if (location == null) {
@@ -156,7 +187,10 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Configures the provided component.
+     * Adds contextual delete actions to a location combo box.
+     *
+     * @param locationCombo combo box to configure
+     * @param onDataChanged callback run after successful deletion
      */
     public void configureLocationComboForDelete(ComboBox<Location> locationCombo, Runnable onDataChanged) {
         Callback<ListView<Location>, ListCell<Location>> factory = ignored -> createLocationCellWithDelete(onDataChanged);
@@ -165,7 +199,10 @@ public class MainWindowLookupCrudController {
     }
 
     /**
-     * Configures the provided component.
+     * Adds contextual delete actions to a country combo box.
+     *
+     * @param countryCombo combo box to configure
+     * @param onDataChanged callback run after successful deletion
      */
     public void configureCountryComboForDelete(ComboBox<Country> countryCombo, Runnable onDataChanged) {
         Callback<ListView<Country>, ListCell<Country>> factory = ignored -> createCountryCellWithDelete(onDataChanged);

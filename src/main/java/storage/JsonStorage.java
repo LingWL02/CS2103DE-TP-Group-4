@@ -107,7 +107,7 @@ public class JsonStorage {
                 // Images are binary data and don't belong in a text-based JSON file.
                 .setExclusionStrategies(new ExclusionStrategy() {
                     /**
-                     * Performs the shouldSkipField operation.
+                     * Skips BufferedImage fields during JSON serialization.
                      */
                     @Override
                     public boolean shouldSkipField(FieldAttributes field) {
@@ -115,7 +115,7 @@ public class JsonStorage {
                     }
 
                     /**
-                     * Performs the shouldSkipClass operation.
+                     * Skips BufferedImage class types during JSON serialization.
                      */
                     @Override
                     public boolean shouldSkipClass(Class<?> clazz) {
@@ -208,7 +208,7 @@ public class JsonStorage {
      */
     private static class TripSerializer implements JsonSerializer<Trip> {
         /**
-         * Performs the serialize operation.
+         * Converts a trip into its JSON representation.
          */
         @Override
         public JsonElement serialize(Trip src, Type typeOfSrc, JsonSerializationContext context) {
@@ -240,7 +240,7 @@ public class JsonStorage {
      */
     private static class TripDeserializer implements JsonDeserializer<Trip> {
         /**
-         * Performs the deserialize operation.
+         * Converts JSON into a trip instance.
          */
         @Override
         public Trip deserialize(JsonElement json, Type typeOfT,
@@ -334,7 +334,7 @@ public class JsonStorage {
      */
     private static class ActivitySerializer implements JsonSerializer<Activity> {
         /**
-         * Performs the serialize operation.
+         * Converts an activity into its JSON representation.
          */
         @Override
         public JsonElement serialize(Activity src, Type typeOfSrc, JsonSerializationContext context) {
@@ -364,7 +364,7 @@ public class JsonStorage {
      */
     private static class ActivityDeserializer implements JsonDeserializer<Activity> {
         /**
-         * Performs the deserialize operation.
+         * Converts JSON into an activity instance.
          */
         @Override
         public Activity deserialize(JsonElement json, Type typeOfT,
@@ -432,7 +432,7 @@ public class JsonStorage {
      */
     private static class LocationDeserializer implements JsonDeserializer<Location> {
         /**
-         * Performs the deserialize operation.
+         * Converts JSON into a location instance.
          */
         @Override
         public Location deserialize(JsonElement json, Type typeOfT,
@@ -498,7 +498,7 @@ public class JsonStorage {
      */
     private static class CountryDeserializer implements JsonDeserializer<Country> {
         /**
-         * Performs the deserialize operation.
+         * Converts JSON into a country instance.
          */
         @Override
         public Country deserialize(JsonElement json, Type typeOfT,

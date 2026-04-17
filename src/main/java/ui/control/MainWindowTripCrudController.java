@@ -37,7 +37,14 @@ public class MainWindowTripCrudController {
     private final Consumer<String> errorSink;
 
     /**
-     * Creates a new instance.
+         * Creates a trip CRUD coordinator.
+         *
+         * @param tripManager trip lifecycle service
+         * @param expenseRepository expense repository for orphan cleanup
+         * @param lookupController lookup CRUD controller for country dialogs
+         * @param refreshTripListAction callback to refresh trip list UI
+         * @param refreshHeaderAction callback to refresh header summary UI
+         * @param errorSink callback for surfacing error messages
      */
     public MainWindowTripCrudController(
             TripManager tripManager,
@@ -55,7 +62,7 @@ public class MainWindowTripCrudController {
     }
 
     /**
-     * Shows the requested UI view.
+     * Opens the add-trip dialog and persists the created trip.
      */
     public void showAddTripDialog() {
         Dialog<Trip> dialog = new Dialog<>();
@@ -163,7 +170,10 @@ public class MainWindowTripCrudController {
     }
 
     /**
-     * Prompts the user for input.
+     * Opens the edit-trip dialog for a selected trip.
+     *
+     * @param trip trip to edit
+     * @return {@code true} when a save occurred
      */
     public boolean promptEditTrip(Trip trip) {
         if (trip == null) {
@@ -174,7 +184,10 @@ public class MainWindowTripCrudController {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a trip and cleans up orphaned expenses.
+     *
+     * @param trip trip to delete
+     * @return {@code true} when deletion succeeds
      */
     public boolean deleteTripFromUi(Trip trip) {
         if (trip == null) {
@@ -195,7 +208,9 @@ public class MainWindowTripCrudController {
     }
 
     /**
-     * Performs the cleanupExpenseIfOrphaned operation.
+     * Deletes an expense if it is no longer referenced by any trip or activity.
+     *
+     * @param expenseId expense identifier
      */
     public void cleanupExpenseIfOrphaned(int expenseId) {
         if (isExpenseReferencedAnywhere(expenseId)) {

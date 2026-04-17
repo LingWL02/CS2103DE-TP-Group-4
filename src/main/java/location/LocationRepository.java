@@ -34,14 +34,20 @@ public class LocationRepository {
     private int nextId = 1;
 
     /**
-     * Creates a new instance.
+     * Creates a repository backed by default storage components.
+     *
+     * @param countryRepository country lookup repository
      */
     public LocationRepository(CountryRepository countryRepository) {
         this(new LocationStorage(), countryRepository, new ImageAssetStore());
     }
 
     /**
-     * Creates a new instance.
+     * Creates a repository with explicit storage dependencies.
+     *
+     * @param storage location storage gateway
+     * @param countryRepository country lookup repository
+     * @param imageAssetStore image import/normalization helper
      */
     public LocationRepository(LocationStorage storage, CountryRepository countryRepository, ImageAssetStore imageAssetStore) {
         this.storage = storage;
@@ -50,7 +56,9 @@ public class LocationRepository {
     }
 
     /**
-     * Loads data into this component.
+     * Loads locations from storage and rebuilds in-memory identity indexes.
+     *
+     * @throws IOException if storage read or normalization persistence fails
      */
     public void load() throws IOException {
         locations.clear();
@@ -77,28 +85,38 @@ public class LocationRepository {
     }
 
     /**
-     * Saves data from this component.
+     * Persists all current locations to storage.
+     *
+     * @throws IOException if writing fails
      */
     public void save() throws IOException {
         storage.save(locations);
     }
 
     /**
-     * Returns the Locations value.
+     * Returns an immutable snapshot of all locations.
+     *
+     * @return all known locations
      */
     public List<Location> getLocations() {
         return Collections.unmodifiableList(locations);
     }
 
     /**
-     * Finds and returns a matching item.
+     * Finds a location by identifier.
+     *
+     * @param locationId location id
+     * @return matching location, or {@code null}
      */
     public Location findById(int locationId) {
         return locationsById.get(locationId);
     }
 
     /**
-     * Finds and returns a matching item.
+     * Finds a location by name, case-insensitively.
+     *
+     * @param name location name
+     * @return matching location, or {@code null}
      */
     public Location findByName(String name) {
         String normalizedName = normalizeOptional(name);
@@ -114,7 +132,9 @@ public class LocationRepository {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a location by identifier.
+     *
+     * @param locationId location id
      */
     public void deleteLocationById(int locationId) {
         Location location = locationsById.get(locationId);
@@ -128,7 +148,16 @@ public class LocationRepository {
     }
 
     /**
-     * Adds a new item to this object.
+     * Creates and registers a new location.
+     *
+     * @param name required location name
+     * @param address optional address text
+     * @param city optional city text
+     * @param countryId owning country id
+     * @param latitude optional latitude
+     * @param longitude optional longitude
+     * @param imageSourcePath optional source image path to import
+     * @return created location
      */
     public Location addLocation(String name, String address, String city, int countryId,
                                 Double latitude, Double longitude, String imageSourcePath) {
@@ -154,7 +183,17 @@ public class LocationRepository {
     }
 
     /**
-     * Updates existing data in this component.
+     * Updates an existing location.
+     *
+     * @param locationId target location id
+     * @param name required location name
+     * @param address optional address text
+     * @param city optional city text
+     * @param countryId owning country id
+     * @param latitude optional latitude
+     * @param longitude optional longitude
+     * @param imageSourcePath optional source image path to import
+     * @return updated location
      */
     public Location updateLocation(int locationId, String name, String address, String city, int countryId,
                                    Double latitude, Double longitude, String imageSourcePath) {

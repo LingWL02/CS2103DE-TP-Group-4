@@ -14,7 +14,7 @@ import utilities.Copyable;
 public class Expense extends BaseEntity implements Copyable<Expense> {
 
     /**
-     * Represents the enum Type.
+     * Enumerates supported expense categories.
      */
     public enum Type {
         FOOD,
@@ -25,7 +25,7 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     }
 
     /**
-     * Represents the enum Currency.
+     * Enumerates supported currencies for expense values.
      */
     public enum Currency {
         SGD,
@@ -45,14 +45,27 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     private String imagePath;
 
     /**
-     * Creates a new instance.
+     * Creates an expense without an image path.
+     *
+     * @param id expense identifier
+     * @param name expense display name
+     * @param cost expense amount (non-negative)
+     * @param currency expense currency
+     * @param type expense category
      */
     public Expense(int id, String name, float cost, Currency currency, Type type) {
         this(id, name, cost, currency, type, null);
     }
 
     /**
-     * Creates a new instance.
+     * Creates an expense with all persisted fields.
+     *
+     * @param id expense identifier
+     * @param name expense display name
+     * @param cost expense amount (non-negative)
+     * @param currency expense currency
+     * @param type expense category
+     * @param imagePath image path, or {@code null}
      */
     public Expense(int id, String name, float cost, Currency currency, Type type, String imagePath) {
         super(id, name);
@@ -63,14 +76,18 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     }
 
     /**
-     * Returns the Cost value.
+     * Returns the expense amount.
+     *
+     * @return expense amount
      */
     public float getCost() {
         return cost;
     }
 
     /**
-     * Updates the Cost value.
+     * Updates the expense amount.
+     *
+     * @param cost expense amount (must be non-negative)
      */
     public void setCost(float cost) {
         if (cost < 0) {
@@ -80,42 +97,54 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     }
 
     /**
-     * Returns the Currency value.
+     * Returns the expense currency.
+     *
+     * @return expense currency
      */
     public Currency getCurrency() {
         return currency;
     }
 
     /**
-     * Updates the Currency value.
+     * Updates the expense currency.
+     *
+     * @param currency expense currency
      */
     public void setCurrency(Currency currency) {
         this.currency = Objects.requireNonNull(currency, "currency");
     }
 
     /**
-     * Returns the Type value.
+     * Returns the expense category.
+     *
+     * @return expense category
      */
     public Type getType() {
         return type;
     }
 
     /**
-     * Updates the Type value.
+     * Updates the expense category.
+     *
+     * @param type expense category
      */
     public void setType(Type type) {
         this.type = Objects.requireNonNull(type, "type");
     }
 
     /**
-     * Returns the ImagePath value.
+     * Returns the normalized image path.
+     *
+     * @return image path, or {@code null}
      */
     public String getImagePath() {
         return imagePath;
     }
 
     /**
-     * Updates the ImagePath value.
+     * Updates the normalized image path.
+     *
+     * @param imagePath image path, or {@code null}
      */
     public void setImagePath(String imagePath) {
         if (imagePath == null) {
@@ -127,7 +156,9 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
     }
 
     /**
-     * Creates and returns a copy of this object.
+     * Creates a value copy of this expense.
+     *
+     * @return copied expense instance
      */
     @Override
     public Expense copy() {

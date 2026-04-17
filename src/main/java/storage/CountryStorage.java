@@ -31,14 +31,16 @@ public class CountryStorage {
     private final Path dataFilePath;
 
     /**
-     * Creates a new instance.
+     * Creates storage bound to the default country data file.
      */
     public CountryStorage() {
         this(Paths.get(DATA_DIRECTORY, DATA_FILE));
     }
 
     /**
-     * Creates a new instance.
+     * Creates storage bound to a specific data file path.
+     *
+     * @param dataFilePath target JSON data path
      */
     public CountryStorage(Path dataFilePath) {
         this.dataFilePath = dataFilePath;
@@ -46,7 +48,10 @@ public class CountryStorage {
     }
 
     /**
-     * Saves data from this component.
+     * Persists countries to the configured JSON file.
+     *
+     * @param countries countries to persist
+     * @throws IOException if writing fails
      */
     public void save(List<Country> countries) throws IOException {
         Path directory = dataFilePath.getParent();
@@ -59,7 +64,10 @@ public class CountryStorage {
     }
 
     /**
-     * Loads data into this component.
+     * Loads countries from the configured JSON file.
+     *
+     * @return loaded countries, or an empty list when no data is present
+     * @throws IOException if reading fails
      */
     public List<Country> load() throws IOException {
         if (!Files.exists(dataFilePath)) {

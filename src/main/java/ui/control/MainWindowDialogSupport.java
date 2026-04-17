@@ -31,7 +31,11 @@ public final class MainWindowDialogSupport {
     }
 
     /**
-     * Performs the applyDialogTheme operation.
+     * Applies shared stylesheet and style classes to a dialog.
+     *
+     * @param dialog dialog to style
+     * @param styleClass optional style class for the dialog pane
+     * @param cancelButtonStyleClass optional style class for cancel buttons
      */
     public static void applyDialogTheme(Dialog<?> dialog, String styleClass, String cancelButtonStyleClass) {
         String stylesheet = MainWindowDialogSupport.class.getResource("/view/theme.css").toExternalForm();
@@ -48,28 +52,43 @@ public final class MainWindowDialogSupport {
     }
 
     /**
-     * Creates and returns a new item.
+     * Creates a styled add-action button.
+     *
+     * @param text button label
+     * @return configured button
      */
     public static Button createAddButton(String text) {
         return createStyledButton(text, "add-button");
     }
 
     /**
-     * Creates and returns a new item.
+     * Creates a styled edit-action button.
+     *
+     * @param text button label
+     * @return configured button
      */
     public static Button createEditButton(String text) {
         return createStyledButton(text, "edit-button");
     }
 
     /**
-     * Creates and returns a new item.
+     * Creates a styled delete-action button.
+     *
+     * @param text button label
+     * @return configured button
      */
     public static Button createDeleteButton(String text) {
         return createStyledButton(text, "delete-button");
     }
 
     /**
-     * Creates and returns a new item.
+     * Creates a responsive row containing a combo box with action buttons.
+     *
+     * @param combo primary combo box
+     * @param addButton add-action button
+     * @param editButton edit-action button
+     * @param deleteButton delete-action button
+     * @return configured row container
      */
     public static HBox createResponsiveActionRow(ComboBox<?> combo, Button addButton, Button editButton, Button deleteButton) {
         combo.setMaxWidth(Double.MAX_VALUE);
@@ -82,7 +101,10 @@ public final class MainWindowDialogSupport {
     }
 
     /**
-     * Performs the chooseImagePath operation.
+     * Opens an image chooser and writes the selected path to a text field.
+     *
+     * @param dialog owning dialog
+     * @param targetField text field receiving selected path
      */
     public static void chooseImagePath(Dialog<?> dialog, TextField targetField) {
         FileChooser chooser = new FileChooser();
@@ -98,7 +120,9 @@ public final class MainWindowDialogSupport {
     }
 
     /**
-     * Creates and returns a new item.
+     * Creates a converter for rendering countries in combo boxes.
+     *
+     * @return country string converter
      */
     public static StringConverter<Country> createCountryConverter() {
         return new StringConverter<>() {
@@ -111,7 +135,7 @@ public final class MainWindowDialogSupport {
             }
 
             /**
-             * Performs the fromString operation.
+             * Country parsing is not required for this UI converter.
              */
             @Override
             public Country fromString(String string) {
@@ -121,7 +145,11 @@ public final class MainWindowDialogSupport {
     }
 
     /**
-     * Performs the parseTimeOrDefault operation.
+     * Parses a time string and falls back when parsing fails.
+     *
+     * @param text raw time text
+     * @param fallback fallback value on parse failure
+     * @return parsed time, or fallback on failure
      */
     public static LocalTime parseTimeOrDefault(String text, LocalTime fallback) {
         try {
@@ -132,7 +160,10 @@ public final class MainWindowDialogSupport {
     }
 
     /**
-     * Performs the parseOptionalDouble operation.
+     * Parses an optional decimal value.
+     *
+     * @param text raw numeric text
+     * @return parsed decimal value, or {@code null} for blank input
      */
     public static Double parseOptionalDouble(String text) {
         if (text == null || text.trim().isEmpty()) {

@@ -129,7 +129,7 @@ public class HomeActivitySnapshotController {
     }
 
     /**
-     * Represents the class ActivitySummaryEntry.
+     * Lightweight view model for one activity snapshot row.
      */
     private static class ActivitySummaryEntry {
         private final Activity activity;
@@ -137,8 +137,9 @@ public class HomeActivitySnapshotController {
 
         /**
          * Creates a lightweight snapshot entry for home-page rendering.
-         * @param activity activity shown in the snapshot card.
-         * @param tripName parent trip name shown as metadata.
+         *
+         * @param activity activity shown in the snapshot card
+         * @param tripName parent trip name shown as metadata
          */
         private ActivitySummaryEntry(Activity activity, String tripName) {
             this.activity = activity;

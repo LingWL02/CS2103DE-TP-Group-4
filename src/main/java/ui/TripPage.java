@@ -116,7 +116,9 @@ public class TripPage {
     private trip.TripManager tripManager;
 
     /**
-     * Updates the Trip value.
+     * Binds this page to a trip and refreshes all visible sections.
+     *
+     * @param trip trip to display
      */
     public void setTrip(Trip trip) {
         this.trip = trip;
@@ -142,14 +144,18 @@ public class TripPage {
     }
 
     /**
-     * Updates the TripManager value.
+     * Injects the trip manager used for persistence after edits.
+     *
+     * @param tripManager trip manager
      */
     public void setTripManager(trip.TripManager tripManager) {
         this.tripManager = tripManager;
     }
 
     /**
-     * Updates the ExpenseRepository value.
+     * Injects the expense repository used by expense dialogs.
+     *
+     * @param expenseRepository expense repository
      */
     public void setExpenseRepository(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
@@ -930,7 +936,7 @@ public class TripPage {
             }
 
             /**
-             * Performs the fromString operation.
+             * Parsing is not required for this display-only converter.
              */
             @Override
             public location.Location fromString(String string) {
@@ -1101,7 +1107,7 @@ public class TripPage {
             }
 
             /**
-             * Performs the fromString operation.
+             * Parsing is not required for this display-only converter.
              */
             @Override
             public location.Location fromString(String string) {
@@ -1246,7 +1252,7 @@ public class TripPage {
     }
 
     /**
-     * Shows the requested UI view.
+     * Navigates back to this trip page from a child page.
      */
     public void showTripPage() {
         if (mainWindowControl != null && trip != null) {
@@ -1255,7 +1261,9 @@ public class TripPage {
     }
 
     /**
-     * Returns the Trip value.
+     * Returns the currently bound trip.
+     *
+     * @return currently displayed trip, or {@code null}
      */
     public Trip getTrip() {
         return trip;

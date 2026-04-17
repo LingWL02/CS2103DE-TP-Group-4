@@ -8,7 +8,9 @@ package exceptions;
  */
 public class ExpenseNotFoundException extends Exception {
     /**
-     * Creates a new instance.
+     * Creates an exception describing a missing expense lookup.
+     *
+     * @param message human-readable failure detail
      */
     public ExpenseNotFoundException(String message) {
         super(message);

@@ -8,7 +8,9 @@ package exceptions;
  */
 public class TimeIntervalConflictException extends Exception {
     /**
-     * Creates a new instance.
+     * Creates an exception describing a schedule conflict.
+     *
+     * @param message human-readable conflict detail
      */
     public TimeIntervalConflictException(String message) {
         super(message);

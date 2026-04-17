@@ -40,7 +40,7 @@ public class TripManager {
     private int nextId = 1;
 
     /**
-     * Create TripManager with default Json storage --> save to data/trips.json
+     * Creates a trip manager using default JSON storage.
      */
     public TripManager() {
         //this(Collections.emptyList()); prev version
@@ -55,8 +55,9 @@ public class TripManager {
 //    }
 
     /**
-     * Create TripManager with specific storage instance
-     * @param storage
+     * Creates a trip manager with an explicit storage gateway.
+     *
+     * @param storage trip storage gateway
      */
     public TripManager(JsonStorage storage) {
         this.storage = storage;
@@ -76,9 +77,9 @@ public class TripManager {
             }
         }
     }
+
     /**
-     * Loads trips from the JSON file into this TripManager.
-     * Call this once when the application starts.
+     * Loads trips from storage without external reference resolution.
      *
      * @throws IOException if reading the file fails
      */
@@ -87,14 +88,23 @@ public class TripManager {
     }
 
     /**
-     * Loads data into this component.
+     * Loads trips from storage with optional country/location reference resolution.
+     *
+     * @param countryRepository country repository, or {@code null}
+     * @param locationRepository location repository, or {@code null}
+     * @throws IOException if reading the file fails
      */
     public void loadFromFile(CountryRepository countryRepository, LocationRepository locationRepository) throws IOException {
         loadFromFile(countryRepository, locationRepository, null);
     }
 
     /**
-     * Loads data into this component.
+     * Loads trips from storage and optionally resolves country/location/expense references.
+     *
+     * @param countryRepository country repository, or {@code null}
+     * @param locationRepository location repository, or {@code null}
+     * @param expenseRepository expense repository, or {@code null}
+     * @throws IOException if reading the file fails
      */
     public void loadFromFile(CountryRepository countryRepository, LocationRepository locationRepository,
                              ExpenseRepository expenseRepository) throws IOException {
@@ -118,8 +128,7 @@ public class TripManager {
     }
 
     /**
-     * Saves all current trips to the JSON file.
-     * Call this after any change (add, delete, modify).
+     * Persists all trips to storage.
      *
      * @throws IOException if writing the file fails
      */
@@ -127,17 +136,20 @@ public class TripManager {
         storage.save(trips);
     }
 
-
-
     /**
-     * Returns the Trips value.
+     * Returns an immutable snapshot of all trips.
+     *
+     * @return all managed trips
      */
     public List<Trip> getTrips() {
         return Collections.unmodifiableList(trips);
     }
 
     /**
-     * Adds a new item to this object.
+     * Adds a trip after uniqueness and overlap validation.
+     *
+     * @param trip trip to add
+     * @throws TimeIntervalConflictException if the trip overlaps an existing trip
      */
     public void addTrip(Trip trip) throws TimeIntervalConflictException {
         Objects.requireNonNull(trip, "trip");
@@ -156,7 +168,14 @@ public class TripManager {
     }
 
     /**
-     * Updates existing data in this component.
+     * Updates core fields of an existing trip.
+     *
+     * @param tripId target trip id
+     * @param name required trip name
+     * @param startDateTime required start timestamp
+     * @param endDateTime required end timestamp
+     * @param country required country
+     * @throws TimeIntervalConflictException if the updated range overlaps another trip
      */
     public void updateTrip(int tripId, String name, LocalDateTime startDateTime,
                            LocalDateTime endDateTime, Country country) throws TimeIntervalConflictException {
@@ -204,7 +223,10 @@ public class TripManager {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a trip by identifier.
+     *
+     * @param id trip id
+     * @throws TripNotFoundException if no matching trip exists
      */
     public void deleteTripById(int id) throws TripNotFoundException {
         Trip trip = findTripById(id);
@@ -214,7 +236,10 @@ public class TripManager {
     }
 
     /**
-     * Removes an existing item from this object.
+     * Deletes a trip by name.
+     *
+     * @param name trip name
+     * @throws TripNotFoundException if no matching trip exists
      */
     public void deleteTripByName(String name) throws TripNotFoundException {
         Trip trip = findTripByName(name);
@@ -224,7 +249,9 @@ public class TripManager {
     }
 
     /**
-     * Returns the next available value.
+     * Returns the next unused trip identifier.
+     *
+     * @return next available trip id
      */
     public int nextAvailableId() {
         while (USED_TRIP_IDS.contains(nextId)) {
@@ -234,21 +261,31 @@ public class TripManager {
     }
 
     /**
-     * Returns the TripById value.
+     * Returns a trip by identifier.
+     *
+     * @param id trip id
+     * @return matching trip
+     * @throws TripNotFoundException if no matching trip exists
      */
     public Trip getTripById(int id) throws TripNotFoundException {
         return findTripById(id);
     }
 
     /**
-     * Returns the TripByName value.
+     * Returns a trip by name.
+     *
+     * @param name trip name
+     * @return matching trip
+     * @throws TripNotFoundException if no matching trip exists
      */
     public Trip getTripByName(String name) throws TripNotFoundException {
         return findTripByName(name);
     }
 
     /**
-     * Returns the OverlappingTrips value.
+     * Returns all trips that overlap at least one other trip.
+     *
+     * @return overlapping trips
      */
     public List<Trip> getOverlappingTrips() {
         List<Trip> result = new ArrayList<>();
@@ -270,7 +307,11 @@ public class TripManager {
     }
 
     /**
-     * Returns the OverlappingTrips value.
+     * Returns trips overlapping the supplied time window.
+     *
+     * @param begin inclusive window start
+     * @param end exclusive window end
+     * @return matching trips
      */
     public List<Trip> getOverlappingTrips(LocalDateTime begin, LocalDateTime end) {
         Objects.requireNonNull(begin, "begin");
