@@ -44,10 +44,16 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
 
     private LocalDateTime endDateTime;
 
+    /**
+     * Creates a new instance.
+     */
     public Activity(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this(id, name, startDateTime, endDateTime, null);
     }
 
+    /**
+     * Creates a new instance.
+     */
     public Activity(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime, Location location) {
         super(id, name);
         setStartDateTime(startDateTime);
@@ -55,10 +61,16 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         this.location = location;
     }
 
+    /**
+     * Returns the Types value.
+     */
     public List<Type> getTypes() {
         return Collections.unmodifiableList(types);
     }
 
+    /**
+     * Updates the Types value.
+     */
     public void setTypes(List<Type> types) {
         this.types.clear();
         if (types != null) {
@@ -66,14 +78,23 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         }
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     public void addType(Type type) {
         this.types.add(Objects.requireNonNull(type, "type"));
     }
 
+    /**
+     * Returns the Expenses value.
+     */
     public List<Expense> getExpenses() {
         return Collections.unmodifiableList(expenses);
     }
 
+    /**
+     * Updates the Expenses value.
+     */
     public void setExpenses(List<Expense> expenses) {
         this.expenses.clear();
         if (expenses != null) {
@@ -83,19 +104,31 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         }
     }
 
+    /**
+     * Returns the Location value.
+     */
     public Location getLocation() {
         return location;
     }
 
+    /**
+     * Updates the Location value.
+     */
     public void setLocation(Location location) {
         this.location = location;
     }
 
+    /**
+     * Returns the StartDateTime value.
+     */
     @Override
     public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
+    /**
+     * Updates the StartDateTime value.
+     */
     @Override
     public void setStartDateTime(LocalDateTime startDateTime) {
         Objects.requireNonNull(startDateTime, "startDateTime");
@@ -105,11 +138,17 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         this.startDateTime = startDateTime;
     }
 
+    /**
+     * Returns the EndDateTime value.
+     */
     @Override
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
+    /**
+     * Updates the EndDateTime value.
+     */
     @Override
     public void setEndDateTime(LocalDateTime endDateTime) {
         Objects.requireNonNull(endDateTime, "endDateTime");
@@ -119,33 +158,51 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         this.endDateTime = endDateTime;
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     @Override
     public void addExpense(Expense expense) {
         expenses.add(Objects.requireNonNull(expense, "expense"));
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     @Override
     public void deleteExpenseById(int id) throws ExpenseNotFoundException {
         Expense expense = findExpenseById(id);
         expenses.remove(expense);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     @Override
     public void deleteExpenseByName(String name) throws ExpenseNotFoundException {
         Expense expense = findExpenseByName(name);
         expenses.remove(expense);
     }
 
+    /**
+     * Returns the ExpenseById value.
+     */
     @Override
     public Expense getExpenseById(int id) throws ExpenseNotFoundException {
         return findExpenseById(id);
     }
 
+    /**
+     * Returns the ExpenseByName value.
+     */
     @Override
     public Expense getExpenseByName(String name) throws ExpenseNotFoundException {
         return findExpenseByName(name);
     }
 
+    /**
+     * Returns the TotalCost value.
+     */
     @Override
     public float getTotalCost(Expense.Currency currency) {
         Objects.requireNonNull(currency, "currency");
@@ -158,6 +215,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         return total;
     }
 
+    /**
+     * Creates and returns a copy of this object.
+     */
     @Override
     public Activity copy() {
         Activity copy = new Activity(getId(), getName(), startDateTime, endDateTime, location);
@@ -189,6 +249,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
         throw new ExpenseNotFoundException("Expense not found: name=" + name);
     }
 
+    /**
+     * Returns a string representation of this object.
+     */
     @Override
     public String toString() {
         StringJoiner typeJoiner = new StringJoiner(", ");

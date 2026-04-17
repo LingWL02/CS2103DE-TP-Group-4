@@ -7,6 +7,9 @@ package exceptions;
  * handled by higher-level services or UI actions.</p>
  */
 public class ExpenseNotFoundException extends Exception {
+    /**
+     * Creates a new instance.
+     */
     public ExpenseNotFoundException(String message) {
         super(message);
     }

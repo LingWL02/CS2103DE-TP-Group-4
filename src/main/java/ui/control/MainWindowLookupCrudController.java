@@ -45,6 +45,9 @@ public class MainWindowLookupCrudController {
     private final Consumer<String> errorSink;
     private final BiConsumer<String, String> infoSink;
 
+    /**
+     * Creates a new instance.
+     */
     public MainWindowLookupCrudController(
             BorderPane rootPane,
             TripManager tripManager,
@@ -64,14 +67,23 @@ public class MainWindowLookupCrudController {
         this.infoSink = infoSink;
     }
 
+    /**
+     * Returns the AvailableCountries value.
+     */
     public List<Country> getAvailableCountries() {
         return countryRepository.getCountries();
     }
 
+    /**
+     * Returns the AvailableLocations value.
+     */
     public List<Location> getAvailableLocations() {
         return locationRepository.getLocations();
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public Country promptAddCountry() {
         Country country = openAddCountryDialog(getOwnerWindow());
         if (country != null) {
@@ -80,6 +92,9 @@ public class MainWindowLookupCrudController {
         return country;
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public Country promptEditCountry(Country country) {
         if (country == null) {
             showError("Please select a country to edit.");
@@ -92,6 +107,9 @@ public class MainWindowLookupCrudController {
         return updated;
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public Location promptAddLocation() {
         Location location = openAddLocationDialog(getOwnerWindow());
         if (location != null) {
@@ -100,6 +118,9 @@ public class MainWindowLookupCrudController {
         return location;
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public Location promptEditLocation(Location location) {
         if (location == null) {
             showError("Please select a location to edit.");
@@ -112,6 +133,9 @@ public class MainWindowLookupCrudController {
         return updated;
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public boolean deleteCountryFromUi(Country country, Runnable onDataChanged) {
         if (country == null) {
             showError("Please select a country to delete.");
@@ -120,6 +144,9 @@ public class MainWindowLookupCrudController {
         return attemptDeleteCountry(country, onDataChanged);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public boolean deleteLocationFromUi(Location location, Runnable onDataChanged) {
         if (location == null) {
             showError("Please select a location to delete.");
@@ -128,12 +155,18 @@ public class MainWindowLookupCrudController {
         return attemptDeleteLocation(location, onDataChanged);
     }
 
+    /**
+     * Configures the provided component.
+     */
     public void configureLocationComboForDelete(ComboBox<Location> locationCombo, Runnable onDataChanged) {
         Callback<ListView<Location>, ListCell<Location>> factory = ignored -> createLocationCellWithDelete(onDataChanged);
         locationCombo.setCellFactory(factory);
         locationCombo.setButtonCell(createLocationCellWithDelete(onDataChanged));
     }
 
+    /**
+     * Configures the provided component.
+     */
     public void configureCountryComboForDelete(ComboBox<Country> countryCombo, Runnable onDataChanged) {
         Callback<ListView<Country>, ListCell<Country>> factory = ignored -> createCountryCellWithDelete(onDataChanged);
         countryCombo.setCellFactory(factory);

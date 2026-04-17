@@ -30,15 +30,24 @@ public class CountryRepository {
     private final ImageAssetStore imageAssetStore;
     private int nextId = 1;
 
+    /**
+     * Creates a new instance.
+     */
     public CountryRepository() {
         this(new CountryStorage(), new ImageAssetStore());
     }
 
+    /**
+     * Creates a new instance.
+     */
     public CountryRepository(CountryStorage storage, ImageAssetStore imageAssetStore) {
         this.storage = storage;
         this.imageAssetStore = imageAssetStore;
     }
 
+    /**
+     * Loads data into this component.
+     */
     public void load() throws IOException {
         countries.clear();
         countriesById.clear();
@@ -62,14 +71,23 @@ public class CountryRepository {
         }
     }
 
+    /**
+     * Saves data from this component.
+     */
     public void save() throws IOException {
         storage.save(countries);
     }
 
+    /**
+     * Returns the Countries value.
+     */
     public List<Country> getCountries() {
         return Collections.unmodifiableList(countries);
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     public Country addCountry(String name, String continent, String imageSourcePath) {
         String normalizedName = normalizeRequired(name, "country name");
         int candidateId = nextId;
@@ -85,6 +103,9 @@ public class CountryRepository {
         return country;
     }
 
+    /**
+     * Updates existing data in this component.
+     */
     public Country updateCountry(int countryId, String name, String continent, String imageSourcePath) {
         Country country = countriesById.get(countryId);
         if (country == null) {
@@ -117,10 +138,16 @@ public class CountryRepository {
         return country;
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public Country findById(int countryId) {
         return countriesById.get(countryId);
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public Country findByName(String name) {
         String normalized = normalizeOptional(name);
         if (normalized == null) {
@@ -134,6 +161,9 @@ public class CountryRepository {
         return null;
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteCountryById(int countryId) {
         Country country = countriesById.get(countryId);
         if (country == null) {

@@ -38,6 +38,9 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
 
     private LocalDateTime endDateTime;
 
+    /**
+     * Creates a new instance.
+     */
     public Trip(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime, Country country) {
         super(id, name);
         setStartDateTime(startDateTime);
@@ -45,18 +48,30 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         setCountry(country);
     }
 
+    /**
+     * Creates a new instance.
+     */
     public Trip(int id, String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         this(id, name, startDateTime, endDateTime, new Country(0, "Unspecified"));
     }
 
+    /**
+     * Returns the Activities value.
+     */
     public List<Activity> getActivities() {
         return Collections.unmodifiableList(activities);
     }
 
+    /**
+     * Returns the Expenses value.
+     */
     public List<Expense> getExpenses() {
         return Collections.unmodifiableList(expenses);
     }
 
+    /**
+     * Updates the Expenses value.
+     */
     public void setExpenses(List<Expense> expenses) {
         this.expenses.clear();
         if (expenses != null) {
@@ -66,19 +81,31 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         }
     }
 
+    /**
+     * Returns the Country value.
+     */
     public Country getCountry() {
         return country;
     }
 
+    /**
+     * Updates the Country value.
+     */
     public void setCountry(Country country) {
         this.country = Objects.requireNonNull(country, "country");
     }
 
+    /**
+     * Returns the StartDateTime value.
+     */
     @Override
     public LocalDateTime getStartDateTime() {
         return startDateTime;
     }
 
+    /**
+     * Updates the StartDateTime value.
+     */
     @Override
     public void setStartDateTime(LocalDateTime startDateTime) {
         if (startDateTime == null) {
@@ -91,11 +118,17 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         this.startDateTime = startDateTime;
     }
 
+    /**
+     * Returns the EndDateTime value.
+     */
     @Override
     public LocalDateTime getEndDateTime() {
         return endDateTime;
     }
 
+    /**
+     * Updates the EndDateTime value.
+     */
     @Override
     public void setEndDateTime(LocalDateTime endDateTime) {
         if (endDateTime == null) {
@@ -108,21 +141,33 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         this.endDateTime = endDateTime;
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     public void addActivity(Activity activity) throws TimeIntervalConflictException {
         Objects.requireNonNull(activity, "activity");
         activities.add(activity);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteActivityById(int id) throws ActivityNotFoundException {
         Activity activity = findActivityById(id);
         activities.remove(activity);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteActivityByName(String name) throws ActivityNotFoundException {
         Activity activity = findActivityByName(name);
         activities.remove(activity);
     }
 
+    /**
+     * Returns the OverlappingActivities value.
+     */
     public List<Activity> getOverlappingActivities() {
         List<Activity> result = new ArrayList<>();
         for (int i = 0; i < activities.size(); i++) {
@@ -142,6 +187,9 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         return result;
     }
 
+    /**
+     * Returns the OverlappingAcitivites value.
+     */
     public List<Activity> getOverlappingAcitivites(LocalDateTime begin, LocalDateTime end) {
         Objects.requireNonNull(begin, "begin");
         Objects.requireNonNull(end, "end");
@@ -157,37 +205,58 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         return result;
     }
 
+    /**
+     * Returns the OverlappingActivities value.
+     */
     public List<Activity> getOverlappingActivities(LocalDateTime begin, LocalDateTime end) {
         return getOverlappingAcitivites(begin, end);
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     @Override
     public void addExpense(Expense expense) {
         expenses.add(Objects.requireNonNull(expense, "expense"));
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     @Override
     public void deleteExpenseById(int id) throws ExpenseNotFoundException {
         Expense expense = findExpenseById(id);
         expenses.remove(expense);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     @Override
     public void deleteExpenseByName(String name) throws ExpenseNotFoundException {
         Expense expense = findExpenseByName(name);
         expenses.remove(expense);
     }
 
+    /**
+     * Returns the ExpenseById value.
+     */
     @Override
     public Expense getExpenseById(int id) throws ExpenseNotFoundException {
         return findExpenseById(id);
     }
 
+    /**
+     * Returns the ExpenseByName value.
+     */
     @Override
     public Expense getExpenseByName(String name) throws ExpenseNotFoundException {
         return findExpenseByName(name);
     }
 
+    /**
+     * Returns the TotalCost value.
+     */
     @Override
     public float getTotalCost(Expense.Currency currency) {
         Objects.requireNonNull(currency, "currency");
@@ -203,6 +272,9 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         return total;
     }
 
+    /**
+     * Creates and returns a copy of this object.
+     */
     @Override
     public Trip copy() {
         Trip copy = new Trip(getId(), getName(), startDateTime, endDateTime, country);
@@ -258,6 +330,9 @@ public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, 
         throw new ExpenseNotFoundException("Expense not found: name=" + name);
     }
 
+    /**
+     * Returns a string representation of this object.
+     */
     @Override
     public String toString() {
         return "Trip #" + getId() + ": " + getName()

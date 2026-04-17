@@ -29,15 +29,24 @@ public class ExpenseRepository {
     private final ImageAssetStore imageAssetStore;
     private int nextId = 1;
 
+    /**
+     * Creates a new instance.
+     */
     public ExpenseRepository() {
         this(new ExpenseStorage(), new ImageAssetStore());
     }
 
+    /**
+     * Creates a new instance.
+     */
     public ExpenseRepository(ExpenseStorage storage, ImageAssetStore imageAssetStore) {
         this.storage = storage;
         this.imageAssetStore = imageAssetStore;
     }
 
+    /**
+     * Loads data into this component.
+     */
     public void load() throws IOException {
         expenses.clear();
         expensesById.clear();
@@ -62,18 +71,30 @@ public class ExpenseRepository {
         }
     }
 
+    /**
+     * Saves data from this component.
+     */
     public void save() throws IOException {
         storage.save(expenses);
     }
 
+    /**
+     * Returns the Expenses value.
+     */
     public List<Expense> getExpenses() {
         return Collections.unmodifiableList(expenses);
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public Expense findById(int id) {
         return expensesById.get(id);
     }
 
+    /**
+     * Returns the next available value.
+     */
     public int nextAvailableId() {
         while (USED_EXPENSE_IDS.contains(nextId)) {
             nextId++;
@@ -81,6 +102,9 @@ public class ExpenseRepository {
         return nextId;
     }
 
+    /**
+     * Creates and returns a new item.
+     */
     public Expense createExpense(String name, float cost, Expense.Currency currency, Expense.Type type,
                                  String imageSourcePath) {
         int id = nextAvailableId();
@@ -91,6 +115,9 @@ public class ExpenseRepository {
         return expense;
     }
 
+    /**
+     * Updates existing data in this component.
+     */
     public Expense updateExpense(int expenseId, String name, float cost, Expense.Currency currency, Expense.Type type,
                                  String imageSourcePath) {
         Expense expense = expensesById.get(expenseId);
@@ -114,6 +141,9 @@ public class ExpenseRepository {
         return expense;
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteExpenseById(int expenseId) {
         Expense expense = expensesById.remove(expenseId);
         if (expense == null) {
@@ -123,6 +153,9 @@ public class ExpenseRepository {
         USED_EXPENSE_IDS.remove(expenseId);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteExpenseByName(String name) {
         String normalizedName = normalizeRequired(name, "expense name");
         Expense target = null;
@@ -138,6 +171,9 @@ public class ExpenseRepository {
         deleteExpenseById(target.getId());
     }
 
+    /**
+     * Performs the registerExpense operation.
+     */
     public void registerExpense(Expense expense) {
         registerExpenseId(expense.getId());
         expenses.add(expense);

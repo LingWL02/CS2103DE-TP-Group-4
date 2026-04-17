@@ -6,6 +6,9 @@ import javafx.application.Application;
  * <p>This launcher delegates startup to {@link Main} and does not hold domain or UI state.</p>
  */
 public class Launcher {
+    /**
+     * Performs the main operation.
+     */
     public static void main(String[] args) {
         Application.launch(Main.class, args);
     }

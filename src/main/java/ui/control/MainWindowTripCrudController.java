@@ -36,6 +36,9 @@ public class MainWindowTripCrudController {
     private final Runnable refreshHeaderAction;
     private final Consumer<String> errorSink;
 
+    /**
+     * Creates a new instance.
+     */
     public MainWindowTripCrudController(
             TripManager tripManager,
             expense.ExpenseRepository expenseRepository,
@@ -51,6 +54,9 @@ public class MainWindowTripCrudController {
         this.errorSink = errorSink;
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     public void showAddTripDialog() {
         Dialog<Trip> dialog = new Dialog<>();
         dialog.setTitle("Add Trip");
@@ -156,6 +162,9 @@ public class MainWindowTripCrudController {
         });
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public boolean promptEditTrip(Trip trip) {
         if (trip == null) {
             showError("Please select a trip to edit.");
@@ -164,6 +173,9 @@ public class MainWindowTripCrudController {
         return openEditTripDialog(trip);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public boolean deleteTripFromUi(Trip trip) {
         if (trip == null) {
             showError("Please select a trip to delete.");
@@ -182,6 +194,9 @@ public class MainWindowTripCrudController {
         }
     }
 
+    /**
+     * Performs the cleanupExpenseIfOrphaned operation.
+     */
     public void cleanupExpenseIfOrphaned(int expenseId) {
         if (isExpenseReferencedAnywhere(expenseId)) {
             return;

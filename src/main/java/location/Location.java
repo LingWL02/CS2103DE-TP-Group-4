@@ -25,14 +25,23 @@ public class Location extends BaseEntity {
 
     private String imagePath;
 
+    /**
+     * Creates a new instance.
+     */
     public Location(int id, String name) {
         super(id, name);
     }
 
+    /**
+     * Creates a new instance.
+     */
     public Location(int id, String name, String address, String city, Country country, Double latitude, Double longitude) {
         this(id, name, address, city, country, latitude, longitude, null);
     }
 
+    /**
+     * Creates a new instance.
+     */
     public Location(int id, String name, String address, String city, Country country,
                     Double latitude, Double longitude, String imagePath) {
         super(id, name);
@@ -44,54 +53,93 @@ public class Location extends BaseEntity {
         this.imagePath = imagePath;
     }
 
+    /**
+     * Returns the Address value.
+     */
     public String getAddress() {
         return address;
     }
 
+    /**
+     * Updates the Address value.
+     */
     public void setAddress(String address) {
         this.address = address;
     }
 
+    /**
+     * Returns the City value.
+     */
     public String getCity() {
         return city;
     }
 
+    /**
+     * Updates the City value.
+     */
     public void setCity(String city) {
         this.city = city;
     }
 
+    /**
+     * Returns the Country value.
+     */
     public Country getCountry() {
         return country;
     }
 
+    /**
+     * Updates the Country value.
+     */
     public void setCountry(Country country) {
         this.country = Objects.requireNonNull(country, "country");
     }
 
+    /**
+     * Returns the Latitude value.
+     */
     public Double getLatitude() {
         return latitude;
     }
 
+    /**
+     * Updates the Latitude value.
+     */
     public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
+    /**
+     * Returns the Longitude value.
+     */
     public Double getLongitude() {
         return longitude;
     }
 
+    /**
+     * Updates the Longitude value.
+     */
     public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
+    /**
+     * Returns the ImagePath value.
+     */
     public String getImagePath() {
         return imagePath;
     }
 
+    /**
+     * Updates the ImagePath value.
+     */
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
 
+    /**
+     * Performs the distanceTo operation.
+     */
     public double distanceTo(Location other) {
         Objects.requireNonNull(other, "other");
         if (this.latitude == null || this.longitude == null
@@ -111,6 +159,9 @@ public class Location extends BaseEntity {
         return earthRadiusKm * c;
     }
 
+    /**
+     * Returns a string representation of this object.
+     */
     @Override
     public String toString() {
         StringJoiner locationBits = new StringJoiner(", ");

@@ -78,6 +78,9 @@ public class ActivityPage {
     private ExpenseRepository expenseRepository;
     private final ImageAssetStore imageAssetStore = new ImageAssetStore();
 
+    /**
+     * Updates the Activity value.
+     */
     public void setActivity(Activity activity) {
         this.activity = activity;
         activityNameLabel.setText(activity.getName());
@@ -89,10 +92,16 @@ public class ActivityPage {
         expenseObservableList.setAll(activity.getExpenses());
     }
 
+    /**
+     * Updates the TripPage value.
+     */
     public void setTripPage(TripPage tripPage) {
         this.tripPage = tripPage;
     }
 
+    /**
+     * Updates the TripManager value.
+     */
     public void setTripManager(trip.TripManager tripManager) {
         this.tripManager = tripManager;
     }
@@ -106,6 +115,9 @@ public class ActivityPage {
         this.mainWindowControl = mainWindowControl;
     }
 
+    /**
+     * Updates the ExpenseRepository value.
+     */
     public void setExpenseRepository(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
     }
@@ -361,11 +373,17 @@ public class ActivityPage {
                 () -> locationCombo.getItems().setAll(mainWindowControl.getAvailableLocations()));
         }
         locationCombo.setConverter(new javafx.util.StringConverter<>() {
+            /**
+             * Returns a string representation of this object.
+             */
             @Override
             public String toString(location.Location location) {
                 return location == null ? "" : location.toString();
             }
 
+            /**
+             * Performs the fromString operation.
+             */
             @Override
             public location.Location fromString(String string) {
                 return null;
@@ -581,6 +599,9 @@ public class ActivityPage {
         dialog.showAndWait();
     }
 
+    /**
+     * Returns the TripPage value.
+     */
     public TripPage getTripPage() {
         return tripPage;
     }

@@ -7,6 +7,9 @@ package exceptions;
  * flows that perform activity lookup or deletion.</p>
  */
 public class ActivityNotFoundException extends Exception {
+    /**
+     * Creates a new instance.
+     */
     public ActivityNotFoundException(String message) {
         super(message);
     }

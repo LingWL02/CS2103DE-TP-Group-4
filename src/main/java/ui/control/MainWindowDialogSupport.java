@@ -27,6 +27,9 @@ public final class MainWindowDialogSupport {
     private MainWindowDialogSupport() {
     }
 
+    /**
+     * Performs the applyDialogTheme operation.
+     */
     public static void applyDialogTheme(Dialog<?> dialog, String styleClass, String cancelButtonStyleClass) {
         String stylesheet = MainWindowDialogSupport.class.getResource("/view/theme.css").toExternalForm();
         if (!dialog.getDialogPane().getStylesheets().contains(stylesheet)) {
@@ -41,18 +44,30 @@ public final class MainWindowDialogSupport {
             applyDialogActionStyles(dialog, cancelButtonStyleClass));
     }
 
+    /**
+     * Creates and returns a new item.
+     */
     public static Button createAddButton(String text) {
         return createStyledButton(text, "add-button");
     }
 
+    /**
+     * Creates and returns a new item.
+     */
     public static Button createEditButton(String text) {
         return createStyledButton(text, "edit-button");
     }
 
+    /**
+     * Creates and returns a new item.
+     */
     public static Button createDeleteButton(String text) {
         return createStyledButton(text, "delete-button");
     }
 
+    /**
+     * Creates and returns a new item.
+     */
     public static HBox createResponsiveActionRow(ComboBox<?> combo, Button addButton, Button editButton, Button deleteButton) {
         combo.setMaxWidth(Double.MAX_VALUE);
         combo.setPrefWidth(260);
@@ -63,6 +78,9 @@ public final class MainWindowDialogSupport {
         return new HBox(8, combo, addButton, editButton, deleteButton);
     }
 
+    /**
+     * Performs the chooseImagePath operation.
+     */
     public static void chooseImagePath(Dialog<?> dialog, TextField targetField) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Choose Image");
@@ -76,13 +94,22 @@ public final class MainWindowDialogSupport {
         }
     }
 
+    /**
+     * Creates and returns a new item.
+     */
     public static StringConverter<Country> createCountryConverter() {
         return new StringConverter<>() {
+            /**
+             * Returns a string representation of this object.
+             */
             @Override
             public String toString(Country country) {
                 return country == null ? "" : country.toString();
             }
 
+            /**
+             * Performs the fromString operation.
+             */
             @Override
             public Country fromString(String string) {
                 return null;
@@ -90,6 +117,9 @@ public final class MainWindowDialogSupport {
         };
     }
 
+    /**
+     * Performs the parseTimeOrDefault operation.
+     */
     public static LocalTime parseTimeOrDefault(String text, LocalTime fallback) {
         try {
             return LocalTime.parse(text);
@@ -98,6 +128,9 @@ public final class MainWindowDialogSupport {
         }
     }
 
+    /**
+     * Performs the parseOptionalDouble operation.
+     */
     public static Double parseOptionalDouble(String text) {
         if (text == null || text.trim().isEmpty()) {
             return null;

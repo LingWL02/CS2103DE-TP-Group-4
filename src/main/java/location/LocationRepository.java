@@ -33,16 +33,25 @@ public class LocationRepository {
     private final ImageAssetStore imageAssetStore;
     private int nextId = 1;
 
+    /**
+     * Creates a new instance.
+     */
     public LocationRepository(CountryRepository countryRepository) {
         this(new LocationStorage(), countryRepository, new ImageAssetStore());
     }
 
+    /**
+     * Creates a new instance.
+     */
     public LocationRepository(LocationStorage storage, CountryRepository countryRepository, ImageAssetStore imageAssetStore) {
         this.storage = storage;
         this.countryRepository = countryRepository;
         this.imageAssetStore = imageAssetStore;
     }
 
+    /**
+     * Loads data into this component.
+     */
     public void load() throws IOException {
         locations.clear();
         locationsById.clear();
@@ -67,18 +76,30 @@ public class LocationRepository {
         }
     }
 
+    /**
+     * Saves data from this component.
+     */
     public void save() throws IOException {
         storage.save(locations);
     }
 
+    /**
+     * Returns the Locations value.
+     */
     public List<Location> getLocations() {
         return Collections.unmodifiableList(locations);
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public Location findById(int locationId) {
         return locationsById.get(locationId);
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public Location findByName(String name) {
         String normalizedName = normalizeOptional(name);
         if (normalizedName == null) {
@@ -92,6 +113,9 @@ public class LocationRepository {
         return null;
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteLocationById(int locationId) {
         Location location = locationsById.get(locationId);
         if (location == null) {
@@ -103,6 +127,9 @@ public class LocationRepository {
         USED_LOCATION_NAMES.remove(location.getName().trim().toLowerCase());
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     public Location addLocation(String name, String address, String city, int countryId,
                                 Double latitude, Double longitude, String imageSourcePath) {
         String normalizedName = normalizeRequired(name, "location name");
@@ -126,6 +153,9 @@ public class LocationRepository {
         return location;
     }
 
+    /**
+     * Updates existing data in this component.
+     */
     public Location updateLocation(int locationId, String name, String address, String city, int countryId,
                                    Double latitude, Double longitude, String imageSourcePath) {
         Location location = locationsById.get(locationId);

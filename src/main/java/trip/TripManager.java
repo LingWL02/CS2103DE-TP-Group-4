@@ -86,10 +86,16 @@ public class TripManager {
         loadFromFile(null, null, null);
     }
 
+    /**
+     * Loads data into this component.
+     */
     public void loadFromFile(CountryRepository countryRepository, LocationRepository locationRepository) throws IOException {
         loadFromFile(countryRepository, locationRepository, null);
     }
 
+    /**
+     * Loads data into this component.
+     */
     public void loadFromFile(CountryRepository countryRepository, LocationRepository locationRepository,
                              ExpenseRepository expenseRepository) throws IOException {
         List<Trip> loaded = storage.load();
@@ -123,10 +129,16 @@ public class TripManager {
 
 
 
+    /**
+     * Returns the Trips value.
+     */
     public List<Trip> getTrips() {
         return Collections.unmodifiableList(trips);
     }
 
+    /**
+     * Adds a new item to this object.
+     */
     public void addTrip(Trip trip) throws TimeIntervalConflictException {
         Objects.requireNonNull(trip, "trip");
         ensureUniqueTripName(trip.getName());
@@ -143,6 +155,9 @@ public class TripManager {
         nextId = Math.max(nextId, trip.getId() + 1);
     }
 
+    /**
+     * Updates existing data in this component.
+     */
     public void updateTrip(int tripId, String name, LocalDateTime startDateTime,
                            LocalDateTime endDateTime, Country country) throws TimeIntervalConflictException {
         Trip trip = tripsById.get(tripId);
@@ -188,6 +203,9 @@ public class TripManager {
         trip.setCountry(country);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteTripById(int id) throws TripNotFoundException {
         Trip trip = findTripById(id);
         trips.remove(trip);
@@ -195,6 +213,9 @@ public class TripManager {
         tripsById.remove(id);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public void deleteTripByName(String name) throws TripNotFoundException {
         Trip trip = findTripByName(name);
         trips.remove(trip);
@@ -202,6 +223,9 @@ public class TripManager {
         tripsById.remove(trip.getId());
     }
 
+    /**
+     * Returns the next available value.
+     */
     public int nextAvailableId() {
         while (USED_TRIP_IDS.contains(nextId)) {
             nextId++;
@@ -209,14 +233,23 @@ public class TripManager {
         return nextId;
     }
 
+    /**
+     * Returns the TripById value.
+     */
     public Trip getTripById(int id) throws TripNotFoundException {
         return findTripById(id);
     }
 
+    /**
+     * Returns the TripByName value.
+     */
     public Trip getTripByName(String name) throws TripNotFoundException {
         return findTripByName(name);
     }
 
+    /**
+     * Returns the OverlappingTrips value.
+     */
     public List<Trip> getOverlappingTrips() {
         List<Trip> result = new ArrayList<>();
         for (int i = 0; i < trips.size(); i++) {
@@ -236,6 +269,9 @@ public class TripManager {
         return result;
     }
 
+    /**
+     * Returns the OverlappingTrips value.
+     */
     public List<Trip> getOverlappingTrips(LocalDateTime begin, LocalDateTime end) {
         Objects.requireNonNull(begin, "begin");
         Objects.requireNonNull(end, "end");

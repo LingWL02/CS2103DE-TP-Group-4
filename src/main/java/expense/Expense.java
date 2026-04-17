@@ -38,10 +38,16 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
 
     private String imagePath;
 
+    /**
+     * Creates a new instance.
+     */
     public Expense(int id, String name, float cost, Currency currency, Type type) {
         this(id, name, cost, currency, type, null);
     }
 
+    /**
+     * Creates a new instance.
+     */
     public Expense(int id, String name, float cost, Currency currency, Type type, String imagePath) {
         super(id, name);
         setCost(cost);
@@ -50,10 +56,16 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
         setImagePath(imagePath);
     }
 
+    /**
+     * Returns the Cost value.
+     */
     public float getCost() {
         return cost;
     }
 
+    /**
+     * Updates the Cost value.
+     */
     public void setCost(float cost) {
         if (cost < 0) {
             throw new IllegalArgumentException("cost must be non-negative");
@@ -61,26 +73,44 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
         this.cost = cost;
     }
 
+    /**
+     * Returns the Currency value.
+     */
     public Currency getCurrency() {
         return currency;
     }
 
+    /**
+     * Updates the Currency value.
+     */
     public void setCurrency(Currency currency) {
         this.currency = Objects.requireNonNull(currency, "currency");
     }
 
+    /**
+     * Returns the Type value.
+     */
     public Type getType() {
         return type;
     }
 
+    /**
+     * Updates the Type value.
+     */
     public void setType(Type type) {
         this.type = Objects.requireNonNull(type, "type");
     }
 
+    /**
+     * Returns the ImagePath value.
+     */
     public String getImagePath() {
         return imagePath;
     }
 
+    /**
+     * Updates the ImagePath value.
+     */
     public void setImagePath(String imagePath) {
         if (imagePath == null) {
             this.imagePath = null;
@@ -90,6 +120,9 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
         this.imagePath = trimmed.isEmpty() ? null : trimmed;
     }
 
+    /**
+     * Creates and returns a copy of this object.
+     */
     @Override
     public Expense copy() {
         Expense copy = new Expense(getId(), getName(), cost, currency, type, imagePath);
@@ -99,6 +132,9 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
         return copy;
     }
 
+    /**
+     * Returns a string representation of this object.
+     */
     @Override
     public String toString() {
         return "Expense #" + getId() + ": " + getName()

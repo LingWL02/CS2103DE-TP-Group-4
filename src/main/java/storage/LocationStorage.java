@@ -38,10 +38,16 @@ public class LocationStorage {
     private final Path dataFilePath;
     private final ImageAssetStore imageAssetStore;
 
+    /**
+     * Creates a new instance.
+     */
     public LocationStorage() {
         this(Paths.get(DATA_DIRECTORY, DATA_FILE));
     }
 
+    /**
+     * Creates a new instance.
+     */
     public LocationStorage(Path dataFilePath) {
         this.dataFilePath = dataFilePath;
         this.imageAssetStore = new ImageAssetStore();
@@ -52,6 +58,9 @@ public class LocationStorage {
                 .create();
     }
 
+    /**
+     * Saves data from this component.
+     */
     public void save(List<Location> locations) throws IOException {
         Path directory = dataFilePath.getParent();
         if (directory != null && !Files.exists(directory)) {
@@ -62,6 +71,9 @@ public class LocationStorage {
         }
     }
 
+    /**
+     * Loads data into this component.
+     */
     public List<Location> load() throws IOException {
         if (!Files.exists(dataFilePath)) {
             return new ArrayList<>();
@@ -77,6 +89,9 @@ public class LocationStorage {
     }
 
     private class LocationSerializer implements JsonSerializer<Location> {
+        /**
+         * Performs the serialize operation.
+         */
         @Override
         public JsonElement serialize(Location src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject obj = new JsonObject();
@@ -104,6 +119,9 @@ public class LocationStorage {
     }
 
     private class LocationDeserializer implements JsonDeserializer<Location> {
+        /**
+         * Performs the deserialize operation.
+         */
         @Override
         public Location deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                 throws JsonParseException {

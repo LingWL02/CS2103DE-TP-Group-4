@@ -17,6 +17,9 @@ public final class MainWindowReferenceInspector {
     private MainWindowReferenceInspector() {
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public static List<String> findCountryReferences(TripManager tripManager, int countryId) {
         List<String> references = new ArrayList<>();
         for (Trip trip : tripManager.getTrips()) {
@@ -27,6 +30,9 @@ public final class MainWindowReferenceInspector {
         return references;
     }
 
+    /**
+     * Finds and returns a matching item.
+     */
     public static List<String> findLocationReferences(TripManager tripManager, int locationId) {
         List<String> references = new ArrayList<>();
         for (Trip trip : tripManager.getTrips()) {

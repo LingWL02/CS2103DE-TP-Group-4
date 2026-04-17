@@ -7,6 +7,9 @@ package exceptions;
  * operations and handled by higher-level application flows.</p>
  */
 public class TripNotFoundException extends Exception {
+    /**
+     * Creates a new instance.
+     */
     public TripNotFoundException(String message) {
         super(message);
     }

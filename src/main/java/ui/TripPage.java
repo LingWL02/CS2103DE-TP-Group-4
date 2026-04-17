@@ -115,6 +115,9 @@ public class TripPage {
     private MainWindowControl mainWindowControl;
     private trip.TripManager tripManager;
 
+    /**
+     * Updates the Trip value.
+     */
     public void setTrip(Trip trip) {
         this.trip = trip;
         tripNameLabel.setText(trip.getName());
@@ -138,10 +141,16 @@ public class TripPage {
         this.mainWindowControl = mainWindowControl;
     }
 
+    /**
+     * Updates the TripManager value.
+     */
     public void setTripManager(trip.TripManager tripManager) {
         this.tripManager = tripManager;
     }
 
+    /**
+     * Updates the ExpenseRepository value.
+     */
     public void setExpenseRepository(ExpenseRepository expenseRepository) {
         this.expenseRepository = expenseRepository;
     }
@@ -438,9 +447,9 @@ public class TripPage {
             blockName.getStyleClass().add("timeline-block-name");
             blockName.setWrapText(true);
 
-            Label blockMeta = new Label(createTimeRangeText(segment.startMinute, segment.endMinute)
-                    + " • " + typeText
-                    + (segment.multiDay ? " • Multi-day" : ""));
+                Label blockMeta = new Label(createTimeRangeText(segment.startMinute, segment.endMinute)
+                    + " | " + typeText
+                    + (segment.multiDay ? " | Multi-day" : ""));
             blockMeta.getStyleClass().add("timeline-block-meta");
             blockMeta.setWrapText(true);
 
@@ -912,11 +921,17 @@ public class TripPage {
             mainWindowControl.configureLocationComboForDelete(locationCombo, refreshLocations);
         }
         locationCombo.setConverter(new StringConverter<>() {
+            /**
+             * Returns a string representation of this object.
+             */
             @Override
             public String toString(location.Location location) {
                 return location == null ? "" : location.toString();
             }
 
+            /**
+             * Performs the fromString operation.
+             */
             @Override
             public location.Location fromString(String string) {
                 return null;
@@ -1077,11 +1092,17 @@ public class TripPage {
             mainWindowControl.configureLocationComboForDelete(locationCombo, refreshLocations);
         }
         locationCombo.setConverter(new StringConverter<>() {
+            /**
+             * Returns a string representation of this object.
+             */
             @Override
             public String toString(location.Location location) {
                 return location == null ? "" : location.toString();
             }
 
+            /**
+             * Performs the fromString operation.
+             */
             @Override
             public location.Location fromString(String string) {
                 return null;
@@ -1224,12 +1245,18 @@ public class TripPage {
         }
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     public void showTripPage() {
         if (mainWindowControl != null && trip != null) {
             mainWindowControl.showTripPage(trip);
         }
     }
 
+    /**
+     * Returns the Trip value.
+     */
     public Trip getTrip() {
         return trip;
     }

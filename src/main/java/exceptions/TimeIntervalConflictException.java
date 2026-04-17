@@ -7,6 +7,9 @@ package exceptions;
  * services or UI controllers to prevent invalid timeline updates.</p>
  */
 public class TimeIntervalConflictException extends Exception {
+    /**
+     * Creates a new instance.
+     */
     public TimeIntervalConflictException(String message) {
         super(message);
     }

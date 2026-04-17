@@ -30,15 +30,24 @@ public class ExpenseStorage {
     private final Gson gson;
     private final Path dataFilePath;
 
+    /**
+     * Creates a new instance.
+     */
     public ExpenseStorage() {
         this(Paths.get(DATA_DIRECTORY, DATA_FILE));
     }
 
+    /**
+     * Creates a new instance.
+     */
     public ExpenseStorage(Path dataFilePath) {
         this.dataFilePath = dataFilePath;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
+    /**
+     * Saves data from this component.
+     */
     public void save(List<Expense> expenses) throws IOException {
         Path directory = dataFilePath.getParent();
         if (directory != null && !Files.exists(directory)) {
@@ -49,6 +58,9 @@ public class ExpenseStorage {
         }
     }
 
+    /**
+     * Loads data into this component.
+     */
     public List<Expense> load() throws IOException {
         if (!Files.exists(dataFilePath)) {
             return new ArrayList<>();

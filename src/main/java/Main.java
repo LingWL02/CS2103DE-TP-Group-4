@@ -11,6 +11,9 @@ import javafx.stage.Stage;
  * the JavaFX controllers declared in the loaded view.</p>
  */
 public class Main extends Application {
+    /**
+     * Performs the start operation.
+     */
     @Override
     public void start(Stage stage) {
         try {

@@ -93,6 +93,9 @@ public class MainWindow implements MainWindowControl {
     private MainWindowTripCrudController tripCrudController;
     private PageContext currentPageContext = PageContext.HOME;
 
+    /**
+     * Performs the initialize operation.
+     */
     @FXML
     public void initialize() {
         try {
@@ -133,6 +136,9 @@ public class MainWindow implements MainWindowControl {
         refreshHeaderActivitySummary();
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     @Override
     public void showHomePage() {
         currentPageContext = PageContext.HOME;
@@ -198,6 +204,9 @@ public class MainWindow implements MainWindowControl {
         refreshHeaderActivitySummary();
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     @Override
     public void showTripPage(Trip trip) {
         currentPageContext = PageContext.TRIP;
@@ -224,6 +233,9 @@ public class MainWindow implements MainWindowControl {
         }
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     @Override
     public void showActivityPage(Activity activity, TripPage tripPage) {
         currentPageContext = PageContext.ACTIVITY;
@@ -242,61 +254,100 @@ public class MainWindow implements MainWindowControl {
         }
     }
 
+    /**
+     * Returns the AvailableCountries value.
+     */
     public List<Country> getAvailableCountries() {
         return lookupCrudController.getAvailableCountries();
     }
 
+    /**
+     * Returns the AvailableLocations value.
+     */
     @Override
     public List<Location> getAvailableLocations() {
         return lookupCrudController.getAvailableLocations();
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public Country promptAddCountry() {
         return lookupCrudController.promptAddCountry();
     }
 
+    /**
+     * Prompts the user for input.
+     */
     public Country promptEditCountry(Country country) {
         return lookupCrudController.promptEditCountry(country);
     }
 
+    /**
+     * Prompts the user for input.
+     */
     @Override
     public Location promptAddLocation() {
         return lookupCrudController.promptAddLocation();
     }
 
+    /**
+     * Prompts the user for input.
+     */
     @Override
     public Location promptEditLocation(Location location) {
         return lookupCrudController.promptEditLocation(location);
     }
 
+    /**
+     * Prompts the user for input.
+     */
     @Override
     public boolean promptEditTrip(Trip trip) {
         return tripCrudController.promptEditTrip(trip);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public boolean deleteTripFromUi(Trip trip) {
         return tripCrudController.deleteTripFromUi(trip);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     public boolean deleteCountryFromUi(Country country, Runnable onDataChanged) {
         return lookupCrudController.deleteCountryFromUi(country, onDataChanged);
     }
 
+    /**
+     * Removes an existing item from this object.
+     */
     @Override
     public boolean deleteLocationFromUi(Location location, Runnable onDataChanged) {
         return lookupCrudController.deleteLocationFromUi(location, onDataChanged);
     }
 
+    /**
+     * Performs the cleanupExpenseIfOrphaned operation.
+     */
     @Override
     public void cleanupExpenseIfOrphaned(int expenseId) {
         tripCrudController.cleanupExpenseIfOrphaned(expenseId);
     }
 
+    /**
+     * Configures the provided component.
+     */
     @Override
     public void configureLocationComboForDelete(ComboBox<Location> locationCombo, Runnable onDataChanged) {
         lookupCrudController.configureLocationComboForDelete(locationCombo, onDataChanged);
     }
 
+    /**
+     * Refreshes derived UI or data state.
+     */
     @Override
     public void refreshHeaderActivitySummary() {
         if (activitySnapshotController == null) {
@@ -305,6 +356,9 @@ public class MainWindow implements MainWindowControl {
         activitySnapshotController.refresh(tripManager.getTrips());
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     public void showTripGuide() {
         showGuideDialog("Trip Page Guide", "Trip page controls",
             List.of(
@@ -317,6 +371,9 @@ public class MainWindow implements MainWindowControl {
             ));
     }
 
+    /**
+     * Shows the requested UI view.
+     */
     public void showActivityGuide() {
         showGuideDialog("Activity Page Guide", "Activity expense controls",
             List.of(
@@ -412,7 +469,7 @@ public class MainWindow implements MainWindowControl {
         for (String note : notes) {
             HBox row = new HBox(8);
             row.getStyleClass().add("guide-note-row");
-            Label bullet = new Label("•");
+            Label bullet = new Label("-");
             bullet.getStyleClass().add("guide-bullet");
             Label text = new Label(note);
             text.setWrapText(true);

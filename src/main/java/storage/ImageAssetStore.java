@@ -30,10 +30,16 @@ public class ImageAssetStore {
             "/images/philipines.jpg", "/images/philippines.jpg"
     );
 
+    /**
+     * Performs the importImage operation.
+     */
     public String importImage(String sourcePath, String keyPrefix) {
         return importImage(sourcePath, keyPrefix, null);
     }
 
+    /**
+     * Performs the importImage operation.
+     */
     public String importImage(String sourcePath, String keyPrefix, String semanticName) {
         if (sourcePath == null || sourcePath.isBlank()) {
             return null;
@@ -72,6 +78,9 @@ public class ImageAssetStore {
         }
     }
 
+    /**
+     * Performs the normalizeImagePath operation.
+     */
     public String normalizeImagePath(String imagePath) {
         if (imagePath == null) {
             return null;
