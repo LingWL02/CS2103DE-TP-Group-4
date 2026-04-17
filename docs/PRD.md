@@ -269,53 +269,19 @@ Data purge:
 
 ### 5.1 Core User Flow
 
-```mermaid
-flowchart TD
-	A[Open Application] --> B[Load Persisted Data]
-	B --> C[Home View: Trip List and Activity Snapshot]
-	C --> D[Create or Select Trip]
-	D --> E[Trip View]
-	E --> F[Add or Edit Activity]
-	E --> G[Add or Edit Trip Expense]
-	F --> H[Optional: Assign Location and Activity Type]
-	H --> I[Activity View]
-	I --> J[Add or Edit Activity Expense]
-	E --> K[Filter Activities by Type]
-	E --> L[Review Timeline and Overlaps]
-	J --> M[Persist Changes]
-	G --> M
-	K --> M
-	L --> M
-	M --> C
-```
+![Core User Flow](diagrams/core-user-flow.svg)
 
 ### 5.2 Trip and Activity Scheduling State Diagram
 
-```mermaid
-stateDiagram-v2
-	[*] --> DraftTrip
-	DraftTrip --> ActiveTrip: valid date range and save
-	DraftTrip --> DraftTrip: invalid input
-
-	ActiveTrip --> ActiveTrip: add/edit activity (non-conflicting)
-	ActiveTrip --> ConflictBlocked: overlapping trip update attempted
-	ConflictBlocked --> ActiveTrip: user resolves date conflict
-
-	ActiveTrip --> DeletedTrip: delete confirmed
-	DeletedTrip --> [*]
-```
+<p align="center">
+  <img src="diagrams/trip-activity-state.svg" alt="Trip and Activity State" width="65%" />
+</p>
 
 ### 5.3 Expense Lifecycle State Diagram
 
-```mermaid
-stateDiagram-v2
-	[*] --> DraftExpense
-	DraftExpense --> SavedExpense: valid name/cost/currency/type
-	DraftExpense --> DraftExpense: validation failure
-	SavedExpense --> SavedExpense: edit
-	SavedExpense --> DeletedExpense: delete confirmed
-	DeletedExpense --> [*]
-```
+<p align="center">
+  <img src="diagrams/expense-lifecycle.svg" alt="Expense Lifecycle" width="65%" />
+</p>
 
 ## 6. Requirement-Gathering Techniques and Provenance
 
