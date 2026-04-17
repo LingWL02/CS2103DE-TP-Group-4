@@ -274,13 +274,13 @@ Data purge:
 ### 5.2 Trip and Activity Scheduling State Diagram
 
 <p align="center">
-  <img src="prd_diagrams/trip-activity-state.svg" alt="Trip and Activity State" width="65%" />
+  <img src="prd_diagrams/trip-activity-state.svg" alt="Trip and Activity State" width="40%" />
 </p>
 
 ### 5.3 Expense Lifecycle State Diagram
 
 <p align="center">
-  <img src="prd_diagrams/expense-lifecycle.svg" alt="Expense Lifecycle" width="65%" />
+  <img src="prd_diagrams/expense-lifecycle.svg" alt="Expense Lifecycle" width="40%" />
 </p>
 
 ## 6. Requirement-Gathering Techniques and Provenance

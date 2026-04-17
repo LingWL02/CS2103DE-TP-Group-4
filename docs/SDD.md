@@ -40,7 +40,7 @@ The project follows a layered monolith:
 ### 2.2 Architecture Diagram
 
 <p align="center">
-	<img src="sdd_diagrams/architecture_diagram.svg" alt="Architecture Diagram" width="62%" />
+	<img src="sdd_diagrams/architecture_diagram.svg" alt="Architecture Diagram" width="70%" />
 </p>
 
 ### 2.3 Architectural Rationale
@@ -103,7 +103,7 @@ Why this shape:
 ### 3.2 Data Relationship Diagram
 
 <p align="center">
-	<img src="sdd_diagrams/data_relationship_diagram.svg" alt="Data Relationship Diagram" width="58%" />
+	<img src="sdd_diagrams/data_relationship_diagram.svg" alt="Data Relationship Diagram" width="40%" />
 </p>
 
 ### 3.3 Storage Schemas (Definitive)
@@ -242,25 +242,25 @@ Expected behavior:
 ### 5.1 Sequence Diagram: Startup Load and Reference Resolution
 
 <p align="center">
-	<img src="sdd_diagrams/sequence_diagram_5p1.svg" alt="Sequence Diagram 5.1 Startup Load and Reference Resolution" width="58%" />
+	<img src="sdd_diagrams/sequence_diagram_5p1.svg" alt="Sequence Diagram 5.1 Startup Load and Reference Resolution" width="40%" />
 </p>
 
 ### 5.2 Sequence Diagram: Create Trip
 
 <p align="center">
-	<img src="sdd_diagrams/sequence_diagram_5p2.svg" alt="Sequence Diagram 5.2 Create Trip" width="58%" />
+	<img src="sdd_diagrams/sequence_diagram_5p2.svg" alt="Sequence Diagram 5.2 Create Trip" width="40%" />
 </p>
 
 ### 5.3 State Diagram: Trip Lifecycle
 
 <p align="center">
-	<img src="sdd_diagrams/state_diagram_5p3.svg" alt="State Diagram 5.3 Trip Lifecycle" width="46%" />
+	<img src="sdd_diagrams/state_diagram_5p3.svg" alt="State Diagram 5.3 Trip Lifecycle" width="40%" />
 </p>
 
 ### 5.4 State Diagram: Expense Reference Lifecycle
 
 <p align="center">
-	<img src="sdd_diagrams/state_diagram_5p4.svg" alt="State Diagram 5.4 Expense Reference Lifecycle" width="46%" />
+	<img src="sdd_diagrams/state_diagram_5p4.svg" alt="State Diagram 5.4 Expense Reference Lifecycle" width="40%" />
 </p>
 
 ### 5.5 Algorithm Notes
