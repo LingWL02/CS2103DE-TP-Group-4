@@ -23,7 +23,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Manages trip CRUD dialog flows and expense cleanup tied to trip lifecycle.
+ * Controller for trip CRUD dialogs and trip-level lifecycle actions.
+ *
+ * <p>This class collaborates with {@link TripManager}, {@link MainWindowLookupCrudController},
+ * and {@link expense.ExpenseRepository} to persist trip changes and clean orphaned expenses.</p>
  */
 public class MainWindowTripCrudController {
     private final TripManager tripManager;

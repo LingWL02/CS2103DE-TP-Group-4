@@ -30,7 +30,10 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /**
- * Manages country/location lookup dialogs and deletion rules.
+ * Controller for country and location lookup CRUD workflows from the main window.
+ *
+ * <p>This class coordinates {@link CountryRepository}, {@link LocationRepository}, and
+ * {@link TripManager} constraints while delegating feedback through injected UI callbacks.</p>
  */
 public class MainWindowLookupCrudController {
     private final BorderPane rootPane;

@@ -8,7 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Read-only helpers for checking trip/activity references before deletion.
+ * Read-only utility for inspecting cross-entity references before destructive actions.
+ *
+ * <p>Main-window CRUD controllers use this helper with {@link TripManager} data to detect
+ * country or location dependencies before delete operations.</p>
  */
 public final class MainWindowReferenceInspector {
     private MainWindowReferenceInspector() {

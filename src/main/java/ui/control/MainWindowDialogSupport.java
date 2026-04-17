@@ -18,7 +18,10 @@ import java.io.File;
 import java.time.LocalTime;
 
 /**
- * Shared dialog/UI helper functions used by MainWindow sub-controllers.
+ * Shared UI utility methods for dialog styling, parsing, and form helpers.
+ *
+ * <p>This stateless helper is used by main-window CRUD controllers to keep repeated JavaFX
+ * dialog behavior centralized and consistent.</p>
  */
 public final class MainWindowDialogSupport {
     private MainWindowDialogSupport() {

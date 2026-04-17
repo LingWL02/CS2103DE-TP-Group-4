@@ -6,7 +6,10 @@ import java.util.StringJoiner;
 import utilities.BaseEntity;
 
 /**
- * A physical location with geographic coordinates.
+ * Domain model for a physical place used by activities.
+ *
+ * <p>A location references a {@link Country}, may carry geocoordinates for distance queries,
+ * and is attached to {@link activity.Activity} instances throughout trip plans.</p>
  */
 public class Location extends BaseEntity {
 

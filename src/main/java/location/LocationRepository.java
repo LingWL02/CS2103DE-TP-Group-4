@@ -16,7 +16,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Storage-backed repository for location business logic.
+ * Repository service for creating, updating, and deleting {@link Location} records.
+ *
+ * <p>This class coordinates {@link LocationStorage} persistence, country resolution through
+ * {@link CountryRepository}, and image-path handling via {@link ImageAssetStore}.</p>
  */
 public class LocationRepository {
 

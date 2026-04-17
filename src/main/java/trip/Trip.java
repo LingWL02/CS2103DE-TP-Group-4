@@ -19,7 +19,10 @@ import java.util.Objects;
 import activity.Activity;
 
 /**
- * A trip that contains activities and expenses.
+ * Aggregate root representing a trip with schedule and cost details.
+ *
+ * <p>A trip owns {@link Activity} and {@link Expense} collections, references a
+ * {@link Country}, and is coordinated by {@link TripManager} for lifecycle operations.</p>
  */
 public class Trip extends BaseEntity implements TimeInterval, ExpenseManagable, Copyable<Trip> {
 

@@ -6,7 +6,10 @@ import utilities.BaseEntity;
 import utilities.Copyable;
 
 /**
- * A single cost line item.
+ * Domain model for a single monetary expense entry.
+ *
+ * <p>Expenses are attached to {@link trip.Trip} and {@link activity.Activity} objects and are
+ * persisted through the expense repository and storage components.</p>
  */
 public class Expense extends BaseEntity implements Copyable<Expense> {
 

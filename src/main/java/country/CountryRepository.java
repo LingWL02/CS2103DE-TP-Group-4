@@ -14,7 +14,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Storage-backed repository for country business logic.
+ * Repository service for creating, updating, and deleting {@link Country} records.
+ *
+ * <p>This class coordinates in-memory identity tracking with {@link CountryStorage} persistence
+ * and {@link ImageAssetStore} image-path normalization for country data.</p>
  */
 public class CountryRepository {
 

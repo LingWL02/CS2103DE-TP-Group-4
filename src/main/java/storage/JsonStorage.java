@@ -33,24 +33,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Handles saving and loading Trip data to/from a JSON file.
+ * Persistence gateway for saving and loading trip aggregates as JSON.
  *
- * HOW IT WORKS (for beginners):
- * =============================
- * 1. We use a library called "Gson" (by Google) that can convert
- *    Java objects into JSON text and back again.
- *
- * 2. When we SAVE: Gson looks at all the fields in your Trip objects
- *    (name, startDateTime, activities, expenses, etc.) and writes them
- *    out as a structured JSON text file.
- *
- * 3. When we LOAD: Gson reads that JSON text file and recreates the
- *    Java objects (Trip, Activity, Expense, Location) from the data.
- *
- * 4. We need some special configuration because:
- *    - LocalDateTime is not a simple type (Gson needs help with it)
- *    - BufferedImage (for images) can't be stored as JSON text
- *    - Trip and Activity constructors have validation rules
+ * <p>This class is used by {@link trip.TripManager} and coordinates Gson adapters for
+ * {@link Trip}, {@link Activity}, {@link LocalDateTime}, and related reference serialization.</p>
  */
 public class JsonStorage {
 

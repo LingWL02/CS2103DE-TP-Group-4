@@ -44,10 +44,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * JavaFX controller for the top-level application window.
+ * JavaFX controller for the application's top-level workspace and navigation.
  *
- * <p>MainWindow now focuses on page navigation, high-level wiring, and shared
- * overview UI. CRUD flows are delegated to focused controllers.</p>
+ * <p>This class wires repositories, trip services, and sub-controllers, and coordinates
+ * transitions between home, trip, and activity pages.</p>
  */
 public class MainWindow implements MainWindowControl {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");

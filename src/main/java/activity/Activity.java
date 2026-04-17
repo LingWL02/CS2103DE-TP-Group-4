@@ -17,7 +17,10 @@ import java.util.Objects;
 import java.util.StringJoiner;
 
 /**
- * A time-bounded activity within a trip.
+ * Domain model for a scheduled activity that belongs to a trip itinerary.
+ *
+ * <p>An activity composes {@link Expense} items, may reference a {@link Location}, and is
+ * managed as part of a {@link trip.Trip} through time-interval and expense contracts.</p>
  */
 public class Activity extends BaseEntity implements TimeInterval, ExpenseManagable, Copyable<Activity> {
 

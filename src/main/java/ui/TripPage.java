@@ -54,10 +54,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * JavaFX controller for the trip details page.
+ * JavaFX controller for displaying and editing trip-level details.
  *
- * <p>The page depends on {@link MainWindowControl} rather than directly on
- * {@code MainWindow} to reduce cross-controller coupling.</p>
+ * <p>This page coordinates activity and expense views, timeline rendering, filtering via
+ * {@link ActivityFilter}, and navigation through {@link MainWindowControl}.</p>
  */
 public class TripPage {
     private static final double MIN_DAY_TIMELINE_WIDTH = 220.0;

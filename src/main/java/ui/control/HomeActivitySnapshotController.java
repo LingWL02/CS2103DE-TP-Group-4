@@ -13,7 +13,10 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Builds and refreshes the home-header activity snapshot UI.
+ * UI helper that builds the home-page snapshot of ongoing and upcoming activities.
+ *
+ * <p>This controller reads {@link Trip} data prepared by the main window and renders summary
+ * cards into the provided JavaFX containers.</p>
  */
 public class HomeActivitySnapshotController {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");

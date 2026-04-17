@@ -41,10 +41,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * JavaFX controller for activity-level expense management.
+ * JavaFX controller for viewing and editing a single activity.
  *
- * <p>The controller depends on {@link MainWindowControl} for shared navigation
- * and lookup actions, keeping direct coupling to {@code MainWindow} low.</p>
+ * <p>This page collaborates with {@link MainWindowControl}, {@link TripPage}, and
+ * {@link ExpenseRepository} to manage activity details, expense CRUD, and navigation.</p>
  */
 public class ActivityPage {
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");

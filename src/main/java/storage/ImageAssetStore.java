@@ -11,7 +11,10 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * Stores user-selected image assets into a local data directory.
+ * Handles import and normalization of image paths used by domain entities.
+ *
+ * <p>Repositories call this utility to copy user-provided files into the local data image
+ * directory and to normalize legacy or absolute path formats.</p>
  */
 public class ImageAssetStore {
 

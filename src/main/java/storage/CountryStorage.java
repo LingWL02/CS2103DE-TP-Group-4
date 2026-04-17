@@ -17,7 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Dedicated JSON storage for countries.
+ * Persistence adapter for reading and writing country data as JSON.
+ *
+ * <p>This class is used by {@link country.CountryRepository} and encapsulates Gson-based file
+ * IO so repository logic remains independent from serialization details.</p>
  */
 public class CountryStorage {
 

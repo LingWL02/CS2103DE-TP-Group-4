@@ -5,7 +5,10 @@ import utilities.BaseEntity;
 import java.util.Objects;
 
 /**
- * A generic country-level domain object used by trips and locations.
+ * Domain model representing a country used in trip planning.
+ *
+ * <p>This entity is referenced by {@link trip.Trip} and {@link location.Location}, and is
+ * persisted and validated through the country repository and storage layer.</p>
  */
 public class Country extends BaseEntity {
 

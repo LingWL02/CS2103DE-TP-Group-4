@@ -14,7 +14,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Storage-backed repository for expense records.
+ * Repository service for lifecycle management of {@link Expense} records.
+ *
+ * <p>This class coordinates ID tracking with {@link ExpenseStorage} persistence and
+ * {@link ImageAssetStore} image handling, and is consumed by trip and activity UI flows.</p>
  */
 public class ExpenseRepository {
 

@@ -17,7 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Dedicated JSON storage for expenses.
+ * Persistence adapter for reading and writing expense data as JSON.
+ *
+ * <p>This class is consumed by {@link expense.ExpenseRepository} and isolates Gson file
+ * serialization concerns from expense business logic.</p>
  */
 public class ExpenseStorage {
 

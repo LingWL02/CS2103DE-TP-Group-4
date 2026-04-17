@@ -23,7 +23,10 @@ import storage.JsonStorage;
 import java.io.IOException;
 
 /**
- * Registry for all trips in the application.
+ * Application service that manages the lifecycle of all {@link Trip} entities.
+ *
+ * <p>This manager validates trip constraints, coordinates persistence through
+ * {@link JsonStorage}, and resolves linked country, location, and expense references.</p>
  */
 public class TripManager {
 

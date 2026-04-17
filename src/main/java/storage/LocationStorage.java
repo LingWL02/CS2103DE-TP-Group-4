@@ -24,7 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Dedicated JSON storage for locations.
+ * Persistence adapter for reading and writing location data as JSON.
+ *
+ * <p>This class is consumed by {@link location.LocationRepository} and uses custom
+ * serializers/deserializers to keep location-country references stable in stored data.</p>
  */
 public class LocationStorage {
 
