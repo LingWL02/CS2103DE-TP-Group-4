@@ -24,6 +24,9 @@ import java.time.LocalTime;
  * dialog behavior centralized and consistent.</p>
  */
 public final class MainWindowDialogSupport {
+    /**
+     * Utility class; prevents instantiation.
+     */
     private MainWindowDialogSupport() {
     }
 

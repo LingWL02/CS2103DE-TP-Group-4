@@ -26,6 +26,9 @@ public class Activity extends BaseEntity implements TimeInterval, ExpenseManagab
 
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
 
+    /**
+     * Represents the enum Type.
+     */
     public enum Type {
         SIGHTSEEING,
         ADVENTURE,

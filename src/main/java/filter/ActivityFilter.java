@@ -15,7 +15,9 @@ import java.util.stream.Collectors;
  */
 public final class ActivityFilter {
 
-    /** Prevents instantiation — all methods are static utility methods. */
+    /**
+     * Prevents instantiation because all methods are static utilities.
+     */
     private ActivityFilter() {
     }
 

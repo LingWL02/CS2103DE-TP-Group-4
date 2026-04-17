@@ -88,6 +88,9 @@ public class LocationStorage {
         }
     }
 
+    /**
+     * Represents the class LocationSerializer.
+     */
     private class LocationSerializer implements JsonSerializer<Location> {
         /**
          * Performs the serialize operation.
@@ -118,6 +121,9 @@ public class LocationStorage {
         }
     }
 
+    /**
+     * Represents the class LocationDeserializer.
+     */
     private class LocationDeserializer implements JsonDeserializer<Location> {
         /**
          * Performs the deserialize operation.

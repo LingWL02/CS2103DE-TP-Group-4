@@ -128,10 +128,18 @@ public class HomeActivitySnapshotController {
         return card;
     }
 
+    /**
+     * Represents the class ActivitySummaryEntry.
+     */
     private static class ActivitySummaryEntry {
         private final Activity activity;
         private final String tripName;
 
+        /**
+         * Creates a lightweight snapshot entry for home-page rendering.
+         * @param activity activity shown in the snapshot card.
+         * @param tripName parent trip name shown as metadata.
+         */
         private ActivitySummaryEntry(Activity activity, String tripName) {
             this.activity = activity;
             this.tripName = tripName;

@@ -18,10 +18,18 @@ public abstract class BaseEntity {
     // BufferedImage should remain runtime-only and never be serialized to JSON.
     private transient BufferedImage image;
 
+    /**
+     * Creates a base entity with default id and name values.
+     */
     protected BaseEntity() {
         this(0, "Unnamed");
     }
 
+    /**
+     * Creates a base entity with the provided identity values.
+     * @param id non-negative entity id.
+     * @param name non-blank display name.
+     */
     protected BaseEntity(int id, String name) {
         setId(id);
         setName(name);

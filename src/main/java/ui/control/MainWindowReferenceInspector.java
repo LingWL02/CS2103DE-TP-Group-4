@@ -14,6 +14,9 @@ import java.util.List;
  * country or location dependencies before delete operations.</p>
  */
 public final class MainWindowReferenceInspector {
+    /**
+     * Utility class; prevents instantiation.
+     */
     private MainWindowReferenceInspector() {
     }
 

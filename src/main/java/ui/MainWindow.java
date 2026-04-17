@@ -56,6 +56,9 @@ public class MainWindow implements MainWindowControl {
         .thenComparing(Trip::getStartDateTime)
         .thenComparing(Trip::getEndDateTime);
 
+    /**
+     * Represents the enum PageContext.
+     */
     private enum PageContext {
         HOME,
         TRIP,

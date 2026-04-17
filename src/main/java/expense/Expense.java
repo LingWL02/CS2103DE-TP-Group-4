@@ -13,6 +13,9 @@ import utilities.Copyable;
  */
 public class Expense extends BaseEntity implements Copyable<Expense> {
 
+    /**
+     * Represents the enum Type.
+     */
     public enum Type {
         FOOD,
         ACCOMMODATION,
@@ -21,6 +24,9 @@ public class Expense extends BaseEntity implements Copyable<Expense> {
         OTHER
     }
 
+    /**
+     * Represents the enum Currency.
+     */
     public enum Currency {
         SGD,
         USD,

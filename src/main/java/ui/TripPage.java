@@ -1343,6 +1343,9 @@ public class TripPage {
         }
     }
 
+    /**
+     * Represents the class DaySegment.
+     */
     private static class DaySegment {
         private final Activity activity;
         private final int startMinute;
@@ -1351,6 +1354,14 @@ public class TripPage {
         private final boolean multiDay;
         private int lane;
 
+        /**
+         * Creates a timeline segment projection for one activity span.
+         * @param activity source activity represented by this segment.
+         * @param startMinute segment start offset in minutes from day start.
+         * @param endMinute segment end offset in minutes from day start.
+         * @param overlaps whether the segment overlaps another segment.
+         * @param multiDay whether the segment crosses day boundaries.
+         */
         private DaySegment(Activity activity, int startMinute, int endMinute, boolean overlaps, boolean multiDay) {
             this.activity = activity;
             this.startMinute = startMinute;
