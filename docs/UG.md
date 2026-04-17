@@ -69,15 +69,9 @@ System reaction:
 
 ## Golden Path: Plan a Trip End-to-End
 
-```mermaid
-flowchart LR
-	A[Open App] --> B[Add Trip]
-	B --> C[Open Trip Page]
-	C --> D[Add Activities]
-	D --> E[Add Expenses]
-	E --> F[Review Timeline and Totals]
-	F --> G[Use Back to Home]
-```
+<p align="center">
+	<img src="ug_diagrams/golden_path.svg" alt="Golden Path Diagram" width="60%" />
+</p>
 
 ## Main Features
 

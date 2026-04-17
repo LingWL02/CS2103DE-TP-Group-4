@@ -105,14 +105,9 @@ To reset local state:
 
 Voyage Planner is a layered monolith.
 
-```mermaid
-flowchart TD
-		UI[JavaFX Pages and Dialogs] --> CTRL[UI Control Coordinators]
-		CTRL --> DOMAIN[Domain Entities and Managers]
-		DOMAIN --> REPO[Repositories]
-		REPO --> STORAGE[JSON Storage Adapters]
-		STORAGE --> FS[data/*.json and data/images/*]
-```
+<p align="center">
+	<img src="dg_diagrams/architecture.svg" alt="Developer Guide Architecture Diagram" width="20%" />
+</p>
 
 ### 3.1 Why this architecture
 
@@ -126,22 +121,9 @@ flowchart TD
 
 ### 3.2 Runtime flow for common CRUD action
 
-```mermaid
-sequenceDiagram
-		participant User
-		participant Page as JavaFX Page
-		participant Ctrl as CRUD Controller
-		participant Mgr as TripManager/Repository
-		participant Store as Storage Adapter
-		participant File as JSON Files
-
-		User->>Page: Submit dialog form
-		Page->>Ctrl: invoke action handler
-		Ctrl->>Mgr: validate and mutate model
-		Mgr->>Store: save()
-		Store->>File: write updated JSON
-		Ctrl->>Page: refresh list/timeline/summary
-```
+<p align="center">
+	<img src="dg_diagrams/runtime_flow.svg" alt="Developer Guide Runtime Flow Diagram" width="60%" />
+</p>
 
 ## 4. Dependency Mapping
 

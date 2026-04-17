@@ -1,4 +1,4 @@
-# Software Design Document (SDD)
+﻿# Software Design Document (SDD)
 
 ## 1. Technical Context and Scope
 
@@ -49,6 +49,14 @@ Why this shape:
 - allows repository-level indexing and validation,
 - centralizes aggregate consistency in TripManager and domain entities,
 - supports fail-soft startup with tolerant deserialization.
+
+### 2.4 Comprehensive Class Diagram
+
+The following class diagram captures the static structure across domain entities, interfaces, repositories, storage adapters, UI/control coordinators, entrypoints, and exception hierarchy.
+
+<p align="center">
+	<img src="sdd_diagrams/class_diagram.svg" alt="Comprehensive Class Diagram" width="100%" />
+</p>
 
 ## 3. Data Model and Schema
 
@@ -406,4 +414,5 @@ This SDD is complete when:
 
 3. PM risk visibility
 - Product stakeholders can identify hard parts (persistence safety, overlap performance, reference integrity) and plan release risk accordingly.
+
 
